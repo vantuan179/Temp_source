@@ -69,7 +69,10 @@ public class SplineWalker : MonoBehaviour {
 		//Debug.Log (" ----------------------angle---------------- "+angle);
 		for (int i = 0; i < arrScores.Length; i++) {
 			//Debug.Log(i + " ---------------------------- "+((360/arrScores.Length*(i+1) - 360/(arrScores.Length*2))));
-			if(angle < (360/arrScores.Length*(i+1) - 360/(arrScores.Length*2))) {
+			if(angle > 360 - 360/(arrScores.Length*2)){
+				scores = arrScores[0];
+			}
+			else if(angle < (360/arrScores.Length*(i+1) - 360/(arrScores.Length*2))) {
 				scores = arrScores[i];
 				break;
 			}
