@@ -48,28 +48,26 @@ public class DragObjects : MonoBehaviour {
 			screenSpace = Camera.main.WorldToScreenPoint (Target.transform.position);
 			Target.transform.position = Camera.main.ScreenToWorldPoint (new Vector3 (Input.mousePosition.x, Input.mousePosition.y, screenSpace.z));
 
-			/*Vector3 O = Camera.main.WorldToScreenPoint (new Vector3(0, 0, 0));
-			Vector3 v = Camera.main.ScreenToWorldPoint (new Vector3 (Input.mousePosition.x, Input.mousePosition.y, O.z));
-			float d = Vector3.Distance(v, new Vector3(0, 0, 0));
-			Debug.Log("d --------------------------------------- "+d);
-			for(int i = 0; i < listRadius.Length; i++){
-				if(d < listRadius[i]){
-					Debug.Log("AA --------------------------------------- "+i);
-					break;
-				}
-			}*/
-
 		}
 		if (Input.GetMouseButtonUp (0)) {
 			//mouseSpeed = oldMouse - Input.mousePosition;
 			//Target.transform.parent = null;
-			Vector2 v1 = new Vector2(0, 1);
-			Vector2 v2 = new Vector2(Input.mousePosition.x - oldMouse.x, Input.mousePosition.y - oldMouse.y);
-			float angle = Vector2.Angle(v1, v2);
-			//splineWalker.spline.transform.Rotate(new Vector3(0, 0, 1), angle);
-			splineWalker.spline.transform.position = Target.transform.position - tmpV;
-			_mouseState = false;
-			splineWalker.isThrowDart = true;
+			float d = Vector2.Distance(Input.mousePosition, oldMouse);
+			Debug.Log("d --------------------------------------- "+d);
+			if(d > 10 && Input.mousePosition.y > oldMouse.y) {
+				Vector2 v1 = new Vector2(0, 1);
+				Vector2 v2 = new Vector2(Input.mousePosition.x - oldMouse.x, Input.mousePosition.y - oldMouse.y);
+				float angle = Vector2.Angle(v1, v2);
+				Debug.Log("angle --------------------------------------- "+angle);
+				splineWalker.spline.transform.Rotate(new Vector3(0, 0, 1), (Input.mousePosition.x > oldMouse.x ? -angle : angle));
+				splineWalker.spline.transform.position = Target.transform.position - tmpV;
+				_mouseState = false;
+				splineWalker.isThrowDart = true;
+			} else {
+				Target.SetActive(false);
+			}
+
+
 		}
 		if (_mouseState) {
 			//keep track of the mouse position
@@ -79,7 +77,7 @@ public class DragObjects : MonoBehaviour {
 			var curPosition = Camera.main.ScreenToWorldPoint (curScreenSpace);
 			
 			//update the position of the object in the world
-			Target.transform.position = curPosition;
+			Target.transform.position = new Vector3(curPosition.x, curPosition.y+0.3f,curPosition.z);
 		}
 	}
 
