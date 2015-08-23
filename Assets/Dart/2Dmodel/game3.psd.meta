@@ -6,6 +6,7 @@ TextureImporter:
     21300002: game3_1
     21300004: game3_2
     21300006: game3_3
+    21300008: game3_4
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -55,7 +56,7 @@ TextureImporter:
         width: 453
         height: 82
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: game3_1
       rect:
@@ -65,7 +66,7 @@ TextureImporter:
         width: 82
         height: 74
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: game3_2
       rect:
@@ -75,7 +76,7 @@ TextureImporter:
         width: 453
         height: 82
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: game3_3
       rect:
@@ -85,7 +86,17 @@ TextureImporter:
         width: 453
         height: 82
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: game3_4
+      rect:
+        serializedVersion: 2
+        x: 146
+        y: 608
+        width: 90
+        height: 88
+      alignment: 0
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
   spritePackingTag: 
   userData: 
