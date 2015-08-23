@@ -91,10 +91,10 @@ TextureImporter:
     - name: game3_4
       rect:
         serializedVersion: 2
-        x: 146
-        y: 608
-        width: 90
-        height: 88
+        x: 187
+        y: 602
+        width: 93
+        height: 91
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
