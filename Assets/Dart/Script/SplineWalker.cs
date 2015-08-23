@@ -18,11 +18,19 @@ public class SplineWalker : MonoBehaviour {
 	private float reduceScale;
 	bool lookCamera = false;
 	Vector3 targetReview;
+	//score
+	public int s_currentScore = 0;
+	public int s_remainScore = 501;
+	public int s_count = 0;
 	//private CameraSwitch jsScript;  
 	void Start () {
+		//init score
+		s_currentScore = 0;
+		s_remainScore = 501;
+
 		objectText = GameObject.Find("ObjectText");
 		reduceScale = (transform.localScale.x - 0.7f)/8;
-		Debug.Log(reduceScale + "CurveCount ------------------------------ "+spline.CurveCount);
+		//Debug.Log(reduceScale + "CurveCount ------------------------------ "+spline.CurveCount);
 	}
 	private void Update () {
 		if (isThrowDart || lookCamera) {
@@ -66,9 +74,29 @@ public class SplineWalker : MonoBehaviour {
 	}
 
 	public void reSetSplineWalker(){
+
 		progress -= 1f;
 		transform.localPosition = new Vector3 (transform.localPosition.x, transform.localPosition.y, 0);
-		objectText.GetComponent<TextMesh> ().text = "Scores : " + getScores ();
+		//mode 501
+		s_currentScore += getScores ();
+		if (is2xScore () && s_remainScore == s_currentScore) {
+			objectText.GetComponent<TextMesh> ().text = "WIN GAME";
+			return;
+		}
+		if (s_remainScore - s_currentScore > 1) {
+			if (s_count == 3) {
+				s_remainScore -= s_currentScore;
+				s_currentScore = 0;
+				s_count = 0;
+			}
+			s_count++;
+		} else {
+			objectText.GetComponent<TextMesh> ().text = "BUG";
+			s_currentScore = 0;
+			s_count = 0;
+			return;
+		}
+		objectText.GetComponent<TextMesh> ().text = "Scores : " + s_remainScore;
 
 	}	
 
@@ -110,7 +138,7 @@ public class SplineWalker : MonoBehaviour {
 				//Debug.Log("iiiiiiiii --------------------------------------- "+i);
 				switch(i){
 				case 0:
-						return 50;	
+					return 50;	
 					break;
 				case 1:
 					return 25;	
@@ -131,5 +159,14 @@ public class SplineWalker : MonoBehaviour {
 		}
 		return 0;
 	}
-
+	public bool is2xScore(){
+		Vector3 positionoSphere = transform.FindChild("Dart1").FindChild("Sphere03").position;
+		float d = Vector3.Distance(positionoSphere, new Vector3(0, 0, positionoSphere.z));
+		for(int i = 0; i < listRadius.Length; i++){
+			if(d <= listRadius[i] && i == 5){
+				return true;
+			}
+		}
+		return false;
+	}
 }
