@@ -7,6 +7,7 @@ public class DragObjects : MonoBehaviour {
 	private Vector3 screenSpace;
 	private Vector3 oldpositionTarget;
 	private Vector3 oldRotationTarget;
+	private Vector3 oldScaleTarget;
 	private Vector3 oldRotationSpline;
 	private Vector3 oldMouse;
 	private Vector3 mouseSpeed;
@@ -32,6 +33,7 @@ public class DragObjects : MonoBehaviour {
 		tmpV = Target.transform.position - splineWalker.spline.transform.position;
 		oldpositionTarget = Target.transform.position;
 		oldRotationTarget = Target.transform.localEulerAngles;
+		oldScaleTarget = Target.transform.localScale;
 		oldRotationSpline = splineWalker.spline.transform.localEulerAngles;
 
 	}
@@ -41,6 +43,7 @@ public class DragObjects : MonoBehaviour {
 		if (Input.GetMouseButtonDown (0)) {
 			Target.transform.position = oldpositionTarget;
 			Target.transform.localEulerAngles = oldRotationTarget;
+			Target.transform.localScale = oldScaleTarget;
 			splineWalker.spline.transform.localEulerAngles = oldRotationSpline;
 			_mouseState = true;
 			Target.SetActive(true);

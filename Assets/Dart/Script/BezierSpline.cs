@@ -74,6 +74,7 @@ public class BezierSpline : MonoBehaviour {
 	public void SetControlPointMode (int index, BezierControlPointMode mode) {
 		int modeIndex = (index + 1) / 3;
 		modes[modeIndex] = mode;
+		Debug.Log ("modes ----------------------------------------------- "+modes.Length);
 		if (loop) {
 			if (modeIndex == 0) {
 				modes[modes.Length - 1] = mode;

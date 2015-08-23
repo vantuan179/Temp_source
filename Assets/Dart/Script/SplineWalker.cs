@@ -15,8 +15,11 @@ public class SplineWalker : MonoBehaviour {
 	public bool isThrowDart = false;
 	public float[] listRadius;
 	private GameObject objectText;
+	private float reduceScale;
 	void Start () {
 		objectText = GameObject.Find("ObjectText");
+		reduceScale = (transform.localScale.x - 0.5f)/8;
+		Debug.Log(reduceScale + "CurveCount ------------------------------ "+spline.CurveCount);
 	}
 	private void Update () {
 		if (isThrowDart) {
@@ -44,6 +47,7 @@ public class SplineWalker : MonoBehaviour {
 				Vector3 position = spline.GetPoint (progress);
 				if(isThrowDart) {
 					transform.localPosition = position;
+					transform.localScale = transform.localScale - new Vector3(reduceScale, reduceScale, reduceScale);
 					if (lookForward) {
 						transform.LookAt (position + spline.GetDirection (progress));
 					}
