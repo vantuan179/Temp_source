@@ -16,14 +16,16 @@ public class SplineWalker : MonoBehaviour {
 	public float[] listRadius;
 	private GameObject objectText;
 	private float reduceScale;
-	public bool lookCamera = false;
+	bool lookCamera = false;
+	Vector3 targetReview;
+	//private CameraSwitch jsScript;  
 	void Start () {
 		objectText = GameObject.Find("ObjectText");
 		reduceScale = (transform.localScale.x - 0.7f)/8;
 		Debug.Log(reduceScale + "CurveCount ------------------------------ "+spline.CurveCount);
 	}
 	private void Update () {
-		if (isThrowDart) {
+		if (isThrowDart || lookCamera) {
 				if (goingForward) {
 						progress += Time.deltaTime / duration;
 						if (progress > 1f) {
@@ -32,7 +34,9 @@ public class SplineWalker : MonoBehaviour {
 										if(!gameObject.name.Equals("Main Camera")){
 											isThrowDart = false;
 											reSetSplineWalker();
-										}
+										} else {
+											
+										}	
 								} else if (mode == SplineWalkerMode.Loop) {
 										progress -= 1f;
 								} else {
@@ -48,16 +52,16 @@ public class SplineWalker : MonoBehaviour {
 						}
 				}
 				Vector3 position = spline.GetPoint (progress);
+				transform.localPosition = position;
 				if(isThrowDart) {
-					transform.localPosition = position;
 					transform.localScale = transform.localScale - new Vector3(reduceScale, reduceScale, reduceScale);
 					if (lookForward) {
 						transform.LookAt (position + spline.GetDirection (progress));
 					}
 				} else if(lookCamera){
-					transform.localPosition = position;
-					transform.LookAt(new Vector3(0,0,0));
+					transform.LookAt(targetReview);
 				}
+
 			}
 	}
 
@@ -67,6 +71,16 @@ public class SplineWalker : MonoBehaviour {
 		objectText.GetComponent<TextMesh> ().text = "Scores : " + getScores ();
 
 	}	
+
+	public void moveCameraToReview(Vector3 target)
+	{
+		GameObject objCame = GameObject.Find ("Main Camera");
+
+
+		SplineWalker splineCame = objCame.GetComponent<SplineWalker>();
+		splineCame.lookCamera = true;
+		splineCame.targetReview = target;
+	}
 	int[] arrScores = {6,13,4,18,1,20,5,12,9,14,11,8,16,7,19,3,17,2,15,10};
 	int getScores(){
 		int scores = 0;
