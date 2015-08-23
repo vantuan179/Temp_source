@@ -61,9 +61,10 @@ public class SplineWalker : MonoBehaviour {
 	int getScores(){
 		int scores = 0;
 		Vector3 axisOx = new Vector3 (1, 0, 0);
-		Vector3 v = new Vector3 (transform.localPosition.x, transform.localPosition.y, 0);
+		Vector3 positionoSphere = transform.FindChild("Dart1").FindChild("Sphere03").position;
+		Vector3 v = new Vector3 (positionoSphere.x, positionoSphere.y, 0);
 		float angle = Vector3.Angle (axisOx, v);
-		if (transform.localPosition.y < 0) {
+		if (positionoSphere.y < 0) {
 			angle = 360 - angle;
 		}
 		//Debug.Log (" ----------------------angle---------------- "+angle);
@@ -79,9 +80,9 @@ public class SplineWalker : MonoBehaviour {
 		}
 		//if(true) return scores;
 
-		float d = Vector3.Distance(transform.localPosition, new Vector3(0, 0, 0));
+		float d = Vector3.Distance(positionoSphere, new Vector3(0, 0, positionoSphere.z));
 		for(int i = 0; i < listRadius.Length; i++){
-			if(d < listRadius[i]){
+			if(d <= listRadius[i]){
 				//Debug.Log("iiiiiiiii --------------------------------------- "+i);
 				switch(i){
 				case 0:
