@@ -16,6 +16,7 @@ public class SplineWalker : MonoBehaviour {
 	public float[] listRadius;
 	private GameObject objectText;
 	private float reduceScale;
+	public bool lookCamera = false;
 	void Start () {
 		objectText = GameObject.Find("ObjectText");
 		reduceScale = (transform.localScale.x - 0.7f)/8;
@@ -53,8 +54,11 @@ public class SplineWalker : MonoBehaviour {
 					if (lookForward) {
 						transform.LookAt (position + spline.GetDirection (progress));
 					}
+				} else if(lookCamera){
+					transform.localPosition = position;
+					transform.LookAt(new Vector3(0,0,0));
 				}
-		}
+			}
 	}
 
 	public void reSetSplineWalker(){

@@ -35,7 +35,6 @@ public class DragObjects : MonoBehaviour {
 		oldRotationTarget = Target.transform.localEulerAngles;
 		oldScaleTarget = Target.transform.localScale;
 		oldRotationSpline = splineWalker.spline.transform.localEulerAngles;
-
 	}
 	
 	// Update is called once per frame
