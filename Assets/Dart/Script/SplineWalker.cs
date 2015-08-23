@@ -18,7 +18,7 @@ public class SplineWalker : MonoBehaviour {
 	private float reduceScale;
 	void Start () {
 		objectText = GameObject.Find("ObjectText");
-		reduceScale = (transform.localScale.x - 0.5f)/8;
+		reduceScale = (transform.localScale.x - 0.7f)/8;
 		Debug.Log(reduceScale + "CurveCount ------------------------------ "+spline.CurveCount);
 	}
 	private void Update () {
@@ -28,8 +28,10 @@ public class SplineWalker : MonoBehaviour {
 						if (progress > 1f) {
 								if (mode == SplineWalkerMode.Once) {
 										progress = 1f;
-										isThrowDart = false;
-										reSetSplineWalker();
+										if(!gameObject.name.Equals("Main Camera")){
+											isThrowDart = false;
+											reSetSplineWalker();
+										}
 								} else if (mode == SplineWalkerMode.Loop) {
 										progress -= 1f;
 								} else {
