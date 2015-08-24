@@ -20,12 +20,14 @@ public class DragObjects : MonoBehaviour {
 	private Vector3 tmpV;
 
 	private Vector3 oldPostionSpline;
+	
 	// Use this for initialization
 	void Start () {
+#if USE_REVMOB_ANDROID
 		//for ads
 		RevMobBanner banner = revmob.CreateBanner();
 		banner.Show();
-		//
+#endif
 		string[] tubes = {
 			"Tube01", "Tube02", "Tube03", "Tube04", "Tube05", "Tube06" 
 		};
@@ -88,6 +90,7 @@ public class DragObjects : MonoBehaviour {
 			Target.transform.position = new Vector3(curPosition.x, curPosition.y+0.3f,curPosition.z);
 		}
 	}
+#if USE_REVMOB_ANDROID
 	//for ads
 	private static readonly Dictionary<String, String> REVMOB_APP_IDS = new Dictionary<String, String>() {
 		{ "Android", "55d9e985d247913e04c81c8a"}
@@ -97,5 +100,6 @@ public class DragObjects : MonoBehaviour {
 	void Awake() {
 		revmob = RevMob.Start(REVMOB_APP_IDS, "Darts for real money");
 	}
+#endif
 }
 
