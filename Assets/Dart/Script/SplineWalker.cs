@@ -4,7 +4,7 @@ using System.Collections;
 public class SplineWalker : MonoBehaviour {
 
 	public BezierSpline spline;
-
+	BezierSpline[] splines = new BezierSpline[2];
 	public float duration;
 
 	public bool lookForward;
@@ -22,13 +22,15 @@ public class SplineWalker : MonoBehaviour {
 	bool lookCamera = false;
 	bool reviewCamera = false;
 	Vector3 targetReview;
-	float valueScale = 0.5f;
+	float valueScale = 0.6f;
 	float valueSizeCame = 2f;
 	float oldOrthoSize;
-	Vector3 oldOrthoPostion;
-	Vector3 oldOrthoScale;
+	Vector3 oldPosition;
+	Vector3 oldScale;
+	Vector3 oldRotation;
 	Vector3 currentLookAt;
 	Vector3 v2 = Vector3.zero, v3 = Vector3.zero;
+	bool isCameraMode;
 
 	//score
 	public int s_currentScore = 0;
@@ -40,45 +42,33 @@ public class SplineWalker : MonoBehaviour {
 		s_currentScore = 0;
 		s_remainScore = 501;
 
+		isCameraMode = gameObject.name.Equals ("Main Camera") ? true : false;
 		objectText = GameObject.Find("ObjectText");
-		oldOrthoScale = transform.localScale;
-		if (gameObject.name.Equals ("Main Camera")) {
+		oldPosition = transform.position;
+		if (isCameraMode) {
 			oldOrthoSize = camera.orthographicSize;
-			oldOrthoPostion = transform.position;
+			oldRotation = transform.localEulerAngles;
+			currentLookAt = new Vector3(oldPosition.x, oldPosition.y, targetReview.z);
+			splines[0] = spline;
+			splines[1] = GameObject.Find("SplineCamera1").GetComponent<BezierSpline>();
+		} else {
+			oldScale = transform.localScale;
 		}
 	}
 	private void Update () {
 		if (isThrowDart || lookCamera) {
-			float daltatime = Time.deltaTime;
-			float n = (goingForward?1:-1) * (duration/daltatime);
-			if(progress == 0f) {
-				reduceScale = (oldOrthoScale.x - valueScale) / n;
-			}
-			if(lookCamera){
-				if(progress == 0f) {
-					if(v2 == Vector3.zero) {
-						v3 = spline.GetControlPoint(3);
-						v2 = spline.GetControlPoint(2);
-						spline.SetControlPoint(3, new Vector3(v3.x - targetReview.x, v3.y + targetReview.y, v3.z));
-						spline.SetControlPoint(2, v2);
-						currentLookAt = new Vector3(oldOrthoPostion.x, oldOrthoPostion.y, targetReview.z);
-					}
-					reduceSizeCame = (oldOrthoSize - valueSizeCame) / n;
-				}
-				//reduceLookCame = (targetReview - oldOrthoPostion) / n;
-
-			}
-
 			if (goingForward) {
-				progress += daltatime / duration;
+				progress += Time.deltaTime / duration;
 				if (progress > 1f) {
 					if (mode == SplineWalkerMode.Once) {
 						progress = 1f;
-						if (!gameObject.name.Equals ("Main Camera")) {
+						if (!isCameraMode) {
 							isThrowDart = false;
+							transform.localScale = new Vector3 (valueScale, valueScale, valueScale);
 							reSetSplineWalker ();
 						} else {
 							lookCamera = false;
+							camera.orthographicSize = valueSizeCame;
 							StartCoroutine(backCamraGoingForward());
 						}	
 					} else if (mode == SplineWalkerMode.Loop) {
@@ -89,31 +79,31 @@ public class SplineWalker : MonoBehaviour {
 					}
 				}
 			} else {
-				progress -= daltatime / duration;
+				progress -= Time.deltaTime / duration;
 				if (progress < 0f) {
 					progress = 0f;
 					goingForward = true;
 				}
 			}
+
 			Vector3 position = spline.GetPoint (progress);
 			if (isThrowDart) {
 				transform.localPosition = position;
-				if(transform.localScale.x > valueScale)
-					transform.localScale = transform.localScale - new Vector3 (reduceScale, reduceScale, reduceScale);
+				reduceScale = (goingForward?1:-1) * (oldScale.x - valueScale) * progress;
+				transform.localScale = oldScale - new Vector3 (reduceScale, reduceScale, reduceScale);
 				if (lookForward) {
 					transform.LookAt (position + spline.GetDirection (progress));
 				}
 			} else if (lookCamera) {
-				camera.orthographicSize = camera.orthographicSize - reduceSizeCame;
+					camera.orthographicSize = oldOrthoSize - (oldOrthoSize - valueSizeCame) * progress;
 				if(progress == 0f) {
 					lookCamera = false;
 					camera.orthographicSize = oldOrthoSize;
-					transform.LookAt(new Vector3(0, oldOrthoPostion.y, 0));
-					transform.localPosition = oldOrthoPostion;
-
+					transform.localEulerAngles = oldRotation;
+					transform.localPosition = oldPosition;
 				} else {
 					transform.localPosition = position;
-					currentLookAt = currentLookAt + new Vector3((targetReview.x - oldOrthoPostion.x)/n, (targetReview.y - position.y)/n, 0);
+					currentLookAt = new Vector3(oldPosition.x, oldPosition.y, targetReview.z) + (new Vector3((targetReview.x - oldPosition.x) * progress, (targetReview.y - position.y) * progress, 0));
 					transform.LookAt(currentLookAt);
 				}
 			}
@@ -153,8 +143,7 @@ public class SplineWalker : MonoBehaviour {
 	}	
 	IEnumerator backCamraGoingForward(){
 		yield return new WaitForSeconds(2);
-		reduceScale = -1*reduceScale;
-		reduceSizeCame = -1*reduceSizeCame;
+
 		lookCamera = true;
 		goingForward = false;
 	}
@@ -163,11 +152,13 @@ public class SplineWalker : MonoBehaviour {
 	{
 		reviewCamera = false;
 		GameObject objCame = GameObject.Find ("Main Camera");
-
-
 		SplineWalker splineCame = objCame.GetComponent<SplineWalker>();
 		splineCame.lookCamera = true;
 		splineCame.targetReview = target;
+		if (target.x < 0)
+			splineCame.spline = splineCame.splines [1];
+		else
+			splineCame.spline = splineCame.splines [0];
 	}
 	int[] arrScores = {6,13,4,18,1,20,5,12,9,14,11,8,16,7,19,3,17,2,15,10};
 	int getScores(){
@@ -199,20 +190,15 @@ public class SplineWalker : MonoBehaviour {
 				switch(i){
 				case 0:
 					return 50;	
-					break;
 				case 1:
 					return 25;	
-					break;
 				case 2:
 				case 4:
 					return scores;	
-					break;
 				case 3:
 					return scores*3;	
-					break;
 				case 5:
 					return scores*2;	
-					break;
 				}
 				break;
 			}
