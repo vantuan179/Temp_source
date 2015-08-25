@@ -111,6 +111,8 @@ public class DragObjects : MonoBehaviour {
 		return cam.transform.position+cam.transform.forward;
 	}
 	void Update () {
+		if (!SplineWalker.normalMode)
+			return;
 		if (Input.GetMouseButtonDown (0)) {
 			Target = darts[SplineWalker.s_count];
 			splineWalker = Target.GetComponent <SplineWalker> ();
@@ -135,8 +137,6 @@ public class DragObjects : MonoBehaviour {
 			} else {
 				Target.SetActive(false);
 			}
-
-
 		}
 		if (_mouseState) {
 			//keep track of the mouse position

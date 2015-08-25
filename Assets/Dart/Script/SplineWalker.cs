@@ -38,6 +38,7 @@ public class SplineWalker : MonoBehaviour {
 	public int s_remainScore = 501;
 	public static int s_count = 0;
 	private static DragObjects dragObject;
+	public static bool normalMode = true;
 	//private CameraSwitch jsScript;  
 	void Start () {
 		//init score
@@ -62,6 +63,7 @@ public class SplineWalker : MonoBehaviour {
 	}
 	private void Update () {
 		if (isThrowDart || lookCamera) {
+			normalMode = false;
 			if (goingForward) {
 				progress += Time.deltaTime / duration;
 				if (progress > 1f) {
@@ -71,6 +73,7 @@ public class SplineWalker : MonoBehaviour {
 							isThrowDart = false;
 							transform.localScale = new Vector3 (valueScale, valueScale, valueScale);
 							reSetSplineWalker ();
+							normalMode = true;
 						} else {
 							lookCamera = false;
 							camera.orthographicSize = valueSizeMinZoom + (valueSizeMaxZoom - valueSizeMinZoom)*(dragObject.distanceMax2Target/(2*listRadius[6]));
@@ -107,6 +110,7 @@ public class SplineWalker : MonoBehaviour {
 					transform.localEulerAngles = oldRotation;
 					transform.localPosition = oldPosition;
 					dragObject.resetAllDarts();
+					normalMode = true;
 				} else {
 					transform.localPosition = position;
 					currentLookAt = new Vector3(oldPosition.x, oldPosition.y, targetReview.z) + (new Vector3((targetReview.x - oldPosition.x) * progress, (targetReview.y - position.y) * progress, 0));
@@ -127,9 +131,10 @@ public class SplineWalker : MonoBehaviour {
 		if (is2xScore () && s_remainScore == s_currentScore) {
 			objectText.GetComponent<TextMesh> ().text = "WIN GAME";
 			reviewCamera = true;
+			s_currentScore = 0;
 			return;
 		}
-		if (s_remainScore - s_currentScore > 1) {
+		if (s_remainScore - s_currentScore > 1) 	{
 			++s_count;
 			if (s_count == 3) {
 				reviewCamera = true;
@@ -144,7 +149,7 @@ public class SplineWalker : MonoBehaviour {
 			reviewCamera = true;
 			return;
 		}
-		objectText.GetComponent<TextMesh> ().text = "Scores : " + s_remainScore;
+		objectText.GetComponent<TextMesh> ().text = "Scores : " + getScores ();
 
 	}	
 	IEnumerator backCamraGoingForward(){
@@ -193,7 +198,7 @@ public class SplineWalker : MonoBehaviour {
 		float d = Vector3.Distance(positionoSphere, new Vector3(0, 0, positionoSphere.z));
 		for(int i = 0; i < listRadius.Length; i++){
 			if(d <= listRadius[i]){
-				//Debug.Log("iiiiiiiii --------------------------------------- "+i);
+				Debug.Log("iiiiiiiii --------------------------------------- "+i);
 				switch(i){
 				case 0:
 					return 50;	
