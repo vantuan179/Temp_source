@@ -114,6 +114,10 @@ public class DragObjects : MonoBehaviour {
 		if (!SplineWalker.normalMode)
 			return;
 		if (Input.GetMouseButtonDown (0)) {
+			if(SplineWalker.resetDart) {
+				SplineWalker.resetDart = false;
+				resetAllDarts();
+			}
 			Target = darts[SplineWalker.s_count];
 			splineWalker = Target.GetComponent <SplineWalker> ();
 			splineWalker.spline.transform.localEulerAngles = oldRotationSpline;

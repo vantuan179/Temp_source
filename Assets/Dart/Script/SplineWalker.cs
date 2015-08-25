@@ -39,6 +39,7 @@ public class SplineWalker : MonoBehaviour {
 	public static int s_count = 0;
 	private static DragObjects dragObject;
 	public static bool normalMode = true;
+	public static bool resetDart = true;
 	//private CameraSwitch jsScript;  
 	void Start () {
 		//init score
@@ -110,7 +111,7 @@ public class SplineWalker : MonoBehaviour {
 					camera.orthographicSize = oldOrthoSize;
 					transform.localEulerAngles = oldRotation;
 					transform.localPosition = oldPosition;
-					dragObject.resetAllDarts();
+					resetDart = true;
 					normalMode = true;
 				} else {
 					transform.localPosition = position;
