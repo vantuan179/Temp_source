@@ -23,7 +23,8 @@ public class SplineWalker : MonoBehaviour {
 	bool reviewCamera = false;
 	Vector3 targetReview;
 	float valueScale = 0.6f;
-	float valueSizeCame = 3f;
+	float valueSizeMaxZoom = 3.8f;
+	float valueSizeMinZoom = 2.2f;
 	float oldOrthoSize;
 	Vector3 oldPosition;
 	Vector3 oldScale;
@@ -72,7 +73,7 @@ public class SplineWalker : MonoBehaviour {
 							reSetSplineWalker ();
 						} else {
 							lookCamera = false;
-							camera.orthographicSize = valueSizeCame;
+							camera.orthographicSize = valueSizeMinZoom + (valueSizeMaxZoom - valueSizeMinZoom)*(dragObject.distanceMax2Target/(2*listRadius[6]));
 							StartCoroutine(backCamraGoingForward());
 						}	
 					} else if (mode == SplineWalkerMode.Loop) {
@@ -99,7 +100,7 @@ public class SplineWalker : MonoBehaviour {
 					transform.LookAt (position + spline.GetDirection (progress));
 				}
 			} else if (lookCamera) {
-					camera.orthographicSize = oldOrthoSize - (oldOrthoSize - valueSizeCame) * progress;
+				camera.orthographicSize = oldOrthoSize - (oldOrthoSize - (valueSizeMinZoom + (valueSizeMaxZoom - valueSizeMinZoom)*(dragObject.distanceMax2Target/(2*listRadius[6])))) * progress;
 				if(progress == 0f) {
 					lookCamera = false;
 					camera.orthographicSize = oldOrthoSize;
@@ -164,6 +165,7 @@ public class SplineWalker : MonoBehaviour {
 			splineCame.spline = splineCame.splines [1];
 		else
 			splineCame.spline = splineCame.splines [0];
+
 	}
 	int[] arrScores = {6,13,4,18,1,20,5,12,9,14,11,8,16,7,19,3,17,2,15,10};
 	int getScores(){

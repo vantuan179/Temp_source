@@ -63,6 +63,9 @@ public class DragObjects : MonoBehaviour {
 		target.transform.localEulerAngles = oldRotationTarget;
 		target.transform.localScale = oldScaleTarget;
 	}
+
+
+	public float distanceMax2Target = 0f;
 	public Vector3 getInCenterOfDarts(){
 		SplineWalker[] splineEalkers = new SplineWalker[3];
 		splineEalkers[0] = darts [0].GetComponent <SplineWalker> ();
@@ -77,6 +80,7 @@ public class DragObjects : MonoBehaviour {
 			float a = Vector3.Distance (darts [1].transform.position, darts [2].transform.position);
 			float b = Vector3.Distance (darts [0].transform.position, darts [2].transform.position);
 			float c = Vector3.Distance (darts [0].transform.position, darts [1].transform.position);
+			distanceMax2Target = Mathf.Max(a, b, c);
 			float P = a + b + c;
 			Vector3 result = new Vector3 ((a * darts [0].transform.position.x + b * darts [1].transform.position.x + c * darts [2].transform.position.x) / P,
                       (a * darts [0].transform.position.y + b * darts [1].transform.position.y + c * darts [2].transform.position.y) / P,
@@ -90,6 +94,7 @@ public class DragObjects : MonoBehaviour {
 					p[num] = splineEalkers[num++].transform.position;
 				}
 			}
+			distanceMax2Target = Vector3.Distance(p[0], p[1]);
 			return new Vector3((p[0].x + p[1].x)/2, (p[0].y + p[1].y)/2, p[0].z);
 		case 1:
 			Vector3 point = Vector3.zero;
