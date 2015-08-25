@@ -149,7 +149,7 @@ public class SplineWalker : MonoBehaviour {
 			reviewCamera = true;
 			return;
 		}
-		objectText.GetComponent<TextMesh> ().text = "" + s_currentScore;
+		objectText.GetComponent<TextMesh> ().text = "" + s_remainScore;
 
 	}	
 	IEnumerator backCamraGoingForward(){
