@@ -62,50 +62,57 @@ public class DragObjects : MonoBehaviour {
 		target.transform.position = oldpositionTarget;
 		target.transform.localEulerAngles = oldRotationTarget;
 		target.transform.localScale = oldScaleTarget;
+		target.GetComponent <SplineWalker> ().dartOutScreen = true;
 	}
 
 
 	public float distanceMax2Target = 0f;
 	public Vector3 getInCenterOfDarts(){
-		SplineWalker[] splineEalkers = new SplineWalker[3];
-		splineEalkers[0] = darts [0].GetComponent <SplineWalker> ();
-		splineEalkers[1] = darts [1].GetComponent <SplineWalker> ();
-		splineEalkers[2] = darts [2].GetComponent <SplineWalker> ();
+		SplineWalker[] splineWalkers = new SplineWalker[3];
+		Vector3[] pos = new Vector3[3];
+		splineWalkers[0] = darts [0].GetComponent <SplineWalker> ();
+		splineWalkers[1] = darts [1].GetComponent <SplineWalker> ();
+		splineWalkers[2] = darts [2].GetComponent <SplineWalker> ();
 		int count = 0;
-		for (int i = 0; i < splineEalkers.Length; i++) {
-			if (!splineEalkers[i].dartOutScreen) count++;
+		for (int i = 0; i < splineWalkers.Length; i++) {
+			if (!splineWalkers[i].dartOutScreen){
+				pos[i] = darts [i].transform.position;
+				count++;
+			} else {
+				pos[i] = Vector3.zero;
+			}
 		}
+
 		switch(count) {
 		case 3:
-			float a = Vector3.Distance (darts [1].transform.position, darts [2].transform.position);
-			float b = Vector3.Distance (darts [0].transform.position, darts [2].transform.position);
-			float c = Vector3.Distance (darts [0].transform.position, darts [1].transform.position);
+			float a = Vector3.Distance (pos [1], pos [2]);
+			float b = Vector3.Distance (pos [0], pos [2]);
+			float c = Vector3.Distance (pos [0], pos [1]);
 			distanceMax2Target = Mathf.Max(a, b, c);
 			float P = a + b + c;
-			Vector3 result = new Vector3 ((a * darts [0].transform.position.x + b * darts [1].transform.position.x + c * darts [2].transform.position.x) / P,
-                      (a * darts [0].transform.position.y + b * darts [1].transform.position.y + c * darts [2].transform.position.y) / P,
-                      darts [0].transform.position.z);
+			Vector3 result = new Vector3 ((a * pos [0].x + b * pos [1].x + c * pos [2].x) / P,
+			                              (a * pos [0].y + b * pos [1].y + c * pos [2].y) / P,
+			                              pos [0].z);
 			return result;
 		case 2:
 			Vector3[] p = new Vector3[2];
 			int num = 0;
-			for (int i = 0; i < splineEalkers.Length; i++) {
-				if (!splineEalkers[i].dartOutScreen) {
-					p[num] = splineEalkers[num++].transform.position;
+			for (int i = 0; i < splineWalkers.Length; i++) {
+				if (!splineWalkers[i].dartOutScreen) {
+					p[num++] = pos[i];
 				}
 			}
 			distanceMax2Target = Vector3.Distance(p[0], p[1]);
 			return new Vector3((p[0].x + p[1].x)/2, (p[0].y + p[1].y)/2, p[0].z);
 		case 1:
-			Vector3 point = Vector3.zero;
-			for (int i = 0; i < splineEalkers.Length; i++) {
-				if (!splineEalkers[i].dartOutScreen) {
-					point = splineEalkers[i].transform.position;
-					break;
+			for (int i = 0; i < splineWalkers.Length; i++) {
+				if (!splineWalkers[i].dartOutScreen) {
+					return pos[i];
 				}
 			}
-			return point;
-
+			break;
+		default:
+			break;
 		};
 		Camera cam = GameObject.Find("Main Camera").camera;
 		return cam.transform.position+cam.transform.forward;
