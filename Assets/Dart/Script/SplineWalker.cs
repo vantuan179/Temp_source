@@ -15,7 +15,7 @@ public class SplineWalker : MonoBehaviour {
 	private bool goingForward = true;
 	public bool isThrowDart = false;
 	public static float[] listRadius;
-	private GameObject objectText;
+	private GameObject objectText, txtGetScore;
 	private float reduceScale = 0f;
 	private float reduceSizeCame = 0f;
 	private Vector3 reduceLookCame = Vector3.zero;
@@ -47,6 +47,7 @@ public class SplineWalker : MonoBehaviour {
 
 		isCameraMode = gameObject.name.Equals ("Main Camera") ? true : false;
 		objectText = GameObject.Find("ObjectText");
+		txtGetScore = GameObject.Find("textGetScore");
 		oldPosition = transform.position;
 		if (isCameraMode) {
 			oldOrthoSize = camera.orthographicSize;
@@ -129,6 +130,7 @@ public class SplineWalker : MonoBehaviour {
 		//mode 501
 		s_currentScore += getScores ();
 		if (is2xScore () && s_remainScore == s_currentScore) {
+			txtGetScore.GetComponent<TextMesh> ().text = "" + s_currentScore;
 			objectText.GetComponent<TextMesh> ().text = "WIN GAME";
 			reviewCamera = true;
 			s_currentScore = 0;
@@ -137,13 +139,16 @@ public class SplineWalker : MonoBehaviour {
 		if (s_remainScore - s_currentScore > 1) 	{
 			++s_count;
 			if (s_count == 3) {
+
 				reviewCamera = true;
 				s_remainScore -= s_currentScore;
+				txtGetScore.GetComponent<TextMesh> ().text = "" + s_currentScore;
 				s_currentScore = 0;
 				s_count = 0;
 			}
 		} else {
 			objectText.GetComponent<TextMesh> ().text = "BUG";
+			txtGetScore.GetComponent<TextMesh> ().text = "" + s_currentScore;
 			s_currentScore = 0;
 			s_count = 0;
 			reviewCamera = true;
