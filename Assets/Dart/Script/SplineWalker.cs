@@ -34,8 +34,8 @@ public class SplineWalker : MonoBehaviour {
 	bool isCameraMode;
 	public bool dartOutScreen = true;
 	//score
-	public int s_currentScore = 0;
-	public int s_remainScore = 501;
+	public static int s_currentScore = 0;
+	public static int s_remainScore = 501;
 	public static int s_count = 0;
 	private static DragObjects dragObject;
 	public static bool normalMode = true;
@@ -149,7 +149,7 @@ public class SplineWalker : MonoBehaviour {
 			reviewCamera = true;
 			return;
 		}
-		objectText.GetComponent<TextMesh> ().text = "Scores : " + getScores ();
+		objectText.GetComponent<TextMesh> ().text = "" + s_currentScore;
 
 	}	
 	IEnumerator backCamraGoingForward(){
