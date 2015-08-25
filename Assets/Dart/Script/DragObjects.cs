@@ -5,16 +5,17 @@ using System.Collections.Generic;
 
 public class DragObjects : MonoBehaviour {
 	private bool _mouseState;
-	public GameObject Target;
+	private GameObject Target;
+	private GameObject[] darts = new GameObject[3];
+	public GameObject objectDart;
 	private Vector3 screenSpace;
 	private Vector3 oldpositionTarget;
 	private Vector3 oldRotationTarget;
 	private Vector3 oldScaleTarget;
 	private Vector3 oldRotationSpline;
+	private Vector3 oldPostionnSpline;
 	private Vector3 oldMouse;
 	private Vector3 mouseSpeed;
-	private Rigidbody resetRigibody;
-	public int speed = 5;
 	private float[] listRadius;
 	private SplineWalker splineWalker;
 	private Vector3 tmpV;
@@ -29,46 +30,117 @@ public class DragObjects : MonoBehaviour {
 		banner.Show();
 #endif
 		string[] tubes = {
-			"Tube01", "Tube02", "Tube03", "Tube04", "Tube05", "Tube06" 
+			"Tube01", "Tube02", "Tube03", "Tube04", "Tube05", "Tube06", "Tube07" 
 		};
 		listRadius = new float[tubes.Length];
 		for (int i = 0; i < tubes.Length; i++) {
 			GameObject obj = GameObject.Find(tubes[i]);
 			listRadius[i] = obj.GetComponent<SphereCollider>().radius*transform.localScale.x;
 		}
+		for (int i = 0; i < darts.Length; i++) {
+			darts[i] = Instantiate (objectDart) as GameObject;	
+		}
+		Target = darts [0];
 		splineWalker = Target.GetComponent <SplineWalker> ();
-		splineWalker.listRadius = listRadius;
+		SplineWalker.listRadius = listRadius;
 		tmpV = Target.transform.position - splineWalker.spline.transform.position;
 		oldpositionTarget = Target.transform.position;
 		oldRotationTarget = Target.transform.localEulerAngles;
 		oldScaleTarget = Target.transform.localScale;
 		oldRotationSpline = splineWalker.spline.transform.localEulerAngles;
+		oldPostionnSpline = splineWalker.spline.transform.position;
 	}
 	
 	// Update is called once per frame
+	public void resetAllDarts(){
+		foreach (GameObject target in darts) {
+			resetDart(target);
+			target.SetActive(false);
+		}
+	}
+	public void resetDart(GameObject target){
+		target.transform.position = oldpositionTarget;
+		target.transform.localEulerAngles = oldRotationTarget;
+		target.transform.localScale = oldScaleTarget;
+		target.GetComponent <SplineWalker> ().dartOutScreen = true;
+	}
+
+
+	public float distanceMax2Target = 0f;
+	public Vector3 getInCenterOfDarts(){
+		SplineWalker[] splineWalkers = new SplineWalker[3];
+		Vector3[] pos = new Vector3[3];
+		splineWalkers[0] = darts [0].GetComponent <SplineWalker> ();
+		splineWalkers[1] = darts [1].GetComponent <SplineWalker> ();
+		splineWalkers[2] = darts [2].GetComponent <SplineWalker> ();
+		int count = 0;
+		for (int i = 0; i < splineWalkers.Length; i++) {
+			if (!splineWalkers[i].dartOutScreen){
+				pos[i] = darts [i].transform.position;
+				count++;
+			} else {
+				pos[i] = Vector3.zero;
+			}
+		}
+
+		switch(count) {
+		case 3:
+			float a = Vector3.Distance (pos [1], pos [2]);
+			float b = Vector3.Distance (pos [0], pos [2]);
+			float c = Vector3.Distance (pos [0], pos [1]);
+			distanceMax2Target = Mathf.Max(a, b, c);
+			float P = a + b + c;
+			Vector3 result = new Vector3 ((a * pos [0].x + b * pos [1].x + c * pos [2].x) / P,
+			                              (a * pos [0].y + b * pos [1].y + c * pos [2].y) / P,
+			                              pos [0].z);
+			return result;
+		case 2:
+			Vector3[] p = new Vector3[2];
+			int num = 0;
+			for (int i = 0; i < splineWalkers.Length; i++) {
+				if (!splineWalkers[i].dartOutScreen) {
+					p[num++] = pos[i];
+				}
+			}
+			distanceMax2Target = Vector3.Distance(p[0], p[1]);
+			return new Vector3((p[0].x + p[1].x)/2, (p[0].y + p[1].y)/2, p[0].z);
+		case 1:
+			for (int i = 0; i < splineWalkers.Length; i++) {
+				if (!splineWalkers[i].dartOutScreen) {
+					return pos[i];
+				}
+			}
+			break;
+		default:
+			break;
+		};
+		Camera cam = GameObject.Find("Main Camera").camera;
+		return cam.transform.position+cam.transform.forward;
+	}
 	void Update () {
+		if (!SplineWalker.normalMode)
+			return;
 		if (Input.GetMouseButtonDown (0)) {
-			Target.transform.position = oldpositionTarget;
-			Target.transform.localEulerAngles = oldRotationTarget;
-			Target.transform.localScale = oldScaleTarget;
+			if(SplineWalker.resetDart) {
+				SplineWalker.resetDart = false;
+				resetAllDarts();
+			}
+			Target = darts[SplineWalker.s_count];
+			splineWalker = Target.GetComponent <SplineWalker> ();
 			splineWalker.spline.transform.localEulerAngles = oldRotationSpline;
-			_mouseState = true;
+			splineWalker.spline.transform.position = oldPostionnSpline;
 			Target.SetActive(true);
+			_mouseState = true;
 			oldMouse = Input.mousePosition;
 			screenSpace = Camera.main.WorldToScreenPoint (Target.transform.position);
 			Target.transform.position = Camera.main.ScreenToWorldPoint (new Vector3 (Input.mousePosition.x, Input.mousePosition.y, screenSpace.z));
-
 		}
 		if (Input.GetMouseButtonUp (0)) {
-			//mouseSpeed = oldMouse - Input.mousePosition;
-			//Target.transform.parent = null;
 			float d = Vector2.Distance(Input.mousePosition, oldMouse);
-			Debug.Log("d --------------------------------------- "+d);
-			if(d > 10 && Input.mousePosition.y > oldMouse.y) {
+			if(d > 5 && Input.mousePosition.y > oldMouse.y) {
 				Vector2 v1 = new Vector2(0, 1);
 				Vector2 v2 = new Vector2(Input.mousePosition.x - oldMouse.x, Input.mousePosition.y - oldMouse.y);
 				float angle = Vector2.Angle(v1, v2);
-				Debug.Log("angle --------------------------------------- "+angle);
 				splineWalker.spline.transform.Rotate(new Vector3(0, 0, 1), (Input.mousePosition.x > oldMouse.x ? -angle : angle));
 				splineWalker.spline.transform.position = Target.transform.position - tmpV;
 				_mouseState = false;
@@ -76,8 +148,6 @@ public class DragObjects : MonoBehaviour {
 			} else {
 				Target.SetActive(false);
 			}
-
-
 		}
 		if (_mouseState) {
 			//keep track of the mouse position
