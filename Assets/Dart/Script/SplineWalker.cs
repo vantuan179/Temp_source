@@ -32,7 +32,7 @@ public class SplineWalker : MonoBehaviour {
 	Vector3 currentLookAt;
 	Vector3 v2 = Vector3.zero, v3 = Vector3.zero;
 	bool isCameraMode;
-	public bool dartOutScreen;
+	public bool dartOutScreen = true;
 	//score
 	public int s_currentScore = 0;
 	public int s_remainScore = 501;
