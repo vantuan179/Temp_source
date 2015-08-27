@@ -152,6 +152,7 @@ public class DragObjects : MonoBehaviour {
 	private Quaternion toRotation;
 	private float progress;
 	private float angleMax = 30;
+	private float angleRotation = 0;
 	void updateRotateObject () {
 		progress += Time.deltaTime / duration;
 		Transform transformCam = GameObject.Find ("Main Camera").transform;
@@ -168,8 +169,9 @@ public class DragObjects : MonoBehaviour {
 		if (!_mouseState && progress < duration / 10) {
 			fromRotation = transform.rotation;
 			toRotation = Quaternion.Euler(yDeg,xDeg,0);	
-			float angle = Mathf.Max(Quaternion.Angle(fromRotation, toRotation), angleMax);
-			transformCam.RotateAround(Vector3.zero, new Vector3(-yDeg, xDeg ,0), Quaternion.Angle(fromRotation, toRotation)*(Time.deltaTime / duration));
+			float angle = Quaternion.Angle(fromRotation, toRotation);
+		
+			transformCam.RotateAround(Vector3.zero, new Vector3(-yDeg, xDeg ,0), angle*(Time.deltaTime / duration));
 		}
 		if (_mouseState) {
 
@@ -177,9 +179,13 @@ public class DragObjects : MonoBehaviour {
 			yDeg = Input.GetAxis("Mouse Y") * speed * friction;
 			fromRotation = transform.rotation;
 			toRotation = Quaternion.Euler(yDeg,xDeg,0);	
-
-			transformCam.RotateAround(Vector3.zero, new Vector3(-yDeg, xDeg ,0), Quaternion.Angle(fromRotation, toRotation)*(Time.deltaTime / duration));
-
+			float angle = Quaternion.Angle(fromRotation, toRotation);
+			transformCam.RotateAround(Vector3.zero, new Vector3(-yDeg, xDeg ,0), angle*(Time.deltaTime / duration));
+			Plane[] planes = GeometryUtility.CalculateFrustumPlanes(cam);
+			if (GeometryUtility.TestPlanesAABB(planes , GameObject.Find("Cube").collider.bounds))
+				Debug.Log(" --------------------------------------------------------------------- TRUE ");
+			else
+				Debug.Log(" ---------------------------------------------------------------------  FALSE ");
 			//transformCam.Rotate(new Vector3(xDeg, yDeg, 0), Quaternion.Angle(fromRotation, toRotation));
 			//transform.rotation = Quaternion.Lerp(fromRotation,toRotation,1);
 		}
