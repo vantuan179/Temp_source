@@ -36,7 +36,8 @@ public class DragObjects : MonoBehaviour {
 		listRadius = new float[tubes.Length];
 		for (int i = 0; i < tubes.Length; i++) {
 			GameObject obj = GameObject.Find(tubes[i]);
-			listRadius[i] = obj.GetComponent<SphereCollider>().radius*transform.localScale.x;
+			CircleCollider2D circleCollider2D = obj.GetComponent<CircleCollider2D>();
+			listRadius[i] = circleCollider2D.radius*circleCollider2D.transform.localScale.x*transform.localScale.x;
 		}
 		for (int i = 0; i < darts.Length; i++) {
 			darts[i] = Instantiate (objectDart) as GameObject;	
@@ -53,8 +54,12 @@ public class DragObjects : MonoBehaviour {
 		oldRotationSpline = splineWalker.spline.transform.localEulerAngles;
 		oldPostionnSpline = splineWalker.spline.transform.position;
 		cam = GameObject.Find("Main Camera").camera;
+
 	}
-	
+	void OnDrawGizmosSelected() {
+		Gizmos.color = Color.yellow;
+		Gizmos.DrawWireSphere (new Vector3(0, 0, 1), 5);
+	}
 	// Update is called once per frame
 	public void resetAllDarts(){
 		foreach (GameObject target in darts) {
@@ -151,8 +156,9 @@ public class DragObjects : MonoBehaviour {
 	private Quaternion fromRotation;
 	private Quaternion toRotation;
 	private float progress;
-	private float angleMax = 30;
-	private float angleRotation = 0;
+	private float angleRotationMax = 50;
+	private float angleRotationX = 0;
+	private float angleRotationY = 0;
 	void updateRotateObject () {
 		progress += Time.deltaTime / duration;
 		Transform transformCam = GameObject.Find ("Main Camera").transform;
@@ -171,30 +177,43 @@ public class DragObjects : MonoBehaviour {
 			toRotation = Quaternion.Euler(yDeg,xDeg,0);	
 			float angle = Quaternion.Angle(fromRotation, toRotation);
 		
+			if(transformCam.eulerAngles.x > angleRotationMax && yDeg < 0 && transformCam.eulerAngles.x < 180)
+				yDeg = -1*yDeg;
+			else if (360 - transformCam.eulerAngles.x > angleRotationMax && yDeg > 0 && transformCam.eulerAngles.x > 180)
+				yDeg = -1*yDeg;
+			
+			if(transformCam.eulerAngles.y > angleRotationMax && xDeg > 0 && transformCam.eulerAngles.y < 180) 
+				xDeg = -1*xDeg;
+			else if (360 - transformCam.eulerAngles.y > angleRotationMax && xDeg < 0 && transformCam.eulerAngles.y > 180) 
+				xDeg = -1*xDeg;
 			transformCam.RotateAround(Vector3.zero, new Vector3(-yDeg, xDeg ,0), angle*(Time.deltaTime / duration));
+			transformCam.eulerAngles = new Vector3(transformCam.eulerAngles.x, transformCam.eulerAngles.y, 0);
 		}
 		if (_mouseState) {
 
-			xDeg = -Input.GetAxis("Mouse X") * speed * friction;
+			xDeg = Input.GetAxis("Mouse X") * speed * friction;
 			yDeg = Input.GetAxis("Mouse Y") * speed * friction;
 			fromRotation = transform.rotation;
 			toRotation = Quaternion.Euler(yDeg,xDeg,0);	
 			float angle = Quaternion.Angle(fromRotation, toRotation);
+			if(transformCam.eulerAngles.x > angleRotationMax && yDeg < 0 && transformCam.eulerAngles.x < 180)
+				yDeg = 0;
+			else if (360 - transformCam.eulerAngles.x > angleRotationMax && yDeg > 0 && transformCam.eulerAngles.x > 180)
+				yDeg = 0;
+
+			if(transformCam.eulerAngles.y > angleRotationMax && xDeg > 0 && transformCam.eulerAngles.y < 180) 
+				xDeg = 0;
+			else if (360 - transformCam.eulerAngles.y > angleRotationMax && xDeg < 0 && transformCam.eulerAngles.y > 180) 
+				xDeg = 0;
 			transformCam.RotateAround(Vector3.zero, new Vector3(-yDeg, xDeg ,0), angle*(Time.deltaTime / duration));
-			Plane[] planes = GeometryUtility.CalculateFrustumPlanes(cam);
-			if (GeometryUtility.TestPlanesAABB(planes , GameObject.Find("Cube").collider.bounds))
-				Debug.Log(" --------------------------------------------------------------------- TRUE ");
-			else
-				Debug.Log(" ---------------------------------------------------------------------  FALSE ");
-			//transformCam.Rotate(new Vector3(xDeg, yDeg, 0), Quaternion.Angle(fromRotation, toRotation));
-			//transform.rotation = Quaternion.Lerp(fromRotation,toRotation,1);
+			transformCam.eulerAngles = new Vector3(transformCam.eulerAngles.x, transformCam.eulerAngles.y, 0);
 		}
 	}
 
 	void Update () {
-		updateRotateObject ();
-		if (true)
-			return;
+		//updateRotateObject ();
+		//if (true)
+			//return;
 		if (!SplineWalker.normalMode)
 			return;
 		if (Input.GetMouseButtonDown (0)) {
