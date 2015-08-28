@@ -9,8 +9,6 @@ Project("{21DC8D22-7588-C94D-E8BA-1C9CA4BE47DD}") = "Temp_source", "Assembly-CSh
 EndProject
 Project("{21DC8D22-7588-C94D-E8BA-1C9CA4BE47DD}") = "Temp_source", "Assembly-UnityScript-firstpass.unityproj", "{A22162AB-AD1D-FFE4-5F25-CEC67B349072}"
 EndProject
-Project("{21DC8D22-7588-C94D-E8BA-1C9CA4BE47DD}") = "Temp_source", "Assembly-UnityScript.unityproj", "{97E5E6AF-88CC-885C-ACC2-FE3571701CAF}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,15 +31,11 @@ Global
 		{A22162AB-AD1D-FFE4-5F25-CEC67B349072}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A22162AB-AD1D-FFE4-5F25-CEC67B349072}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A22162AB-AD1D-FFE4-5F25-CEC67B349072}.Release|Any CPU.Build.0 = Release|Any CPU
-		{97E5E6AF-88CC-885C-ACC2-FE3571701CAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{97E5E6AF-88CC-885C-ACC2-FE3571701CAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{97E5E6AF-88CC-885C-ACC2-FE3571701CAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{97E5E6AF-88CC-885C-ACC2-FE3571701CAF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-																																														GlobalSection(MonoDevelopProperties) = preSolution
+																																																								GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Assembly-CSharp.csproj
 		Policies = $0
 		$0.TextStylePolicy = $1
