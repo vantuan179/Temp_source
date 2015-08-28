@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class DragObjects : MonoBehaviour {
 	private bool _mouseState;
@@ -19,9 +20,9 @@ public class DragObjects : MonoBehaviour {
 	private float[] listRadius;
 	private SplineWalker splineWalker;
 	private Vector3 tmpV;
-
 	private Vector3 oldPostionSpline;
-	
+	public Text remainScoreText;
+	public Text[] textGetScore;
 	// Use this for initialization
 	void Start () {
 #if USE_REVMOB_ANDROID
@@ -43,12 +44,15 @@ public class DragObjects : MonoBehaviour {
 		Target = darts [0];
 		splineWalker = Target.GetComponent <SplineWalker> ();
 		SplineWalker.listRadius = listRadius;
+		SplineWalker.remainScoreText = remainScoreText;
+		SplineWalker.textGetScore = textGetScore;
 		tmpV = Target.transform.position - splineWalker.spline.transform.position;
 		oldpositionTarget = Target.transform.position;
 		oldRotationTarget = Target.transform.localEulerAngles;
 		oldScaleTarget = Target.transform.localScale;
 		oldRotationSpline = splineWalker.spline.transform.localEulerAngles;
 		oldPostionnSpline = splineWalker.spline.transform.position;
+		cam = GameObject.Find("Main Camera").camera;
 	}
 	
 	// Update is called once per frame
@@ -63,6 +67,9 @@ public class DragObjects : MonoBehaviour {
 		target.transform.localEulerAngles = oldRotationTarget;
 		target.transform.localScale = oldScaleTarget;
 		target.GetComponent <SplineWalker> ().dartOutScreen = true;
+		foreach (Text text in textGetScore) {
+			text.text = "0";		
+		}
 	}
 
 
@@ -93,7 +100,25 @@ public class DragObjects : MonoBehaviour {
 			Vector3 result = new Vector3 ((a * pos [0].x + b * pos [1].x + c * pos [2].x) / P,
 			                              (a * pos [0].y + b * pos [1].y + c * pos [2].y) / P,
 			                              pos [0].z);
-			return result;
+			Vector3 v1 = Vector3.zero;
+			Vector3 v2 = Vector3.zero;
+			Vector3 midpoint = Vector3.zero;
+			if(distanceMax2Target == a) {
+				v1 = pos [2] - pos [1];
+				midpoint = (pos[1] + pos[2]) / 2;
+			} else if(distanceMax2Target == b){
+				v1 = pos [2] - pos [0];
+				midpoint = (pos[0] + pos[2]) / 2;
+			} else if(distanceMax2Target == c){
+				v1 = pos [1] - pos [0];
+				midpoint = (pos[0] + pos[1]) / 2;
+			}
+			v2 = new Vector3(-v1.y, v1.x, pos[0].z);
+			float a1 = v1.x, b1 = v1.y, c1 = -(a1*midpoint.x + b1*midpoint.y);
+			float a2 = v2.x, b2 = v2.y, c2 = -(a2*result.x + b2*result.y);
+			float x = (c2*b1-c1*b2)/(a1*b2-a2*b1);
+			float y = -(c2*a1-c1*a2)/(a1*b2-a2*b1);
+			return new Vector3(x, y, pos [0].z);
 		case 2:
 			Vector3[] p = new Vector3[2];
 			int num = 0;
@@ -114,10 +139,62 @@ public class DragObjects : MonoBehaviour {
 		default:
 			break;
 		};
-		Camera cam = GameObject.Find("Main Camera").camera;
-		return cam.transform.position+cam.transform.forward;
+		return GameObject.Find ("ObjectBoard").transform.position;
 	}
+	Camera cam;
+	int speed = 5;
+	float friction = 1f;
+	float duration = 3f;
+	float lerpSpeed = 1f;
+	private float xDeg;
+	private float yDeg;
+	private Quaternion fromRotation;
+	private Quaternion toRotation;
+	private float progress;
+	private float angleMax = 30;
+	private float angleRotation = 0;
+	void updateRotateObject () {
+		progress += Time.deltaTime / duration;
+		Transform transformCam = GameObject.Find ("Main Camera").transform;
+		if (Input.GetMouseButtonDown (0)) {
+			_mouseState = true;	
+			progress = 0;
+		}
+		if (Input.GetMouseButtonUp (0)) {
+			progress = 0;
+			xDeg = Input.GetAxis("Mouse X") * speed * friction;
+			yDeg = Input.GetAxis("Mouse Y") * speed * friction;
+			_mouseState = false;
+		}
+		if (!_mouseState && progress < duration / 10) {
+			fromRotation = transform.rotation;
+			toRotation = Quaternion.Euler(yDeg,xDeg,0);	
+			float angle = Quaternion.Angle(fromRotation, toRotation);
+		
+			transformCam.RotateAround(Vector3.zero, new Vector3(-yDeg, xDeg ,0), angle*(Time.deltaTime / duration));
+		}
+		if (_mouseState) {
+
+			xDeg = -Input.GetAxis("Mouse X") * speed * friction;
+			yDeg = Input.GetAxis("Mouse Y") * speed * friction;
+			fromRotation = transform.rotation;
+			toRotation = Quaternion.Euler(yDeg,xDeg,0);	
+			float angle = Quaternion.Angle(fromRotation, toRotation);
+			transformCam.RotateAround(Vector3.zero, new Vector3(-yDeg, xDeg ,0), angle*(Time.deltaTime / duration));
+			Plane[] planes = GeometryUtility.CalculateFrustumPlanes(cam);
+			if (GeometryUtility.TestPlanesAABB(planes , GameObject.Find("Cube").collider.bounds))
+				Debug.Log(" --------------------------------------------------------------------- TRUE ");
+			else
+				Debug.Log(" ---------------------------------------------------------------------  FALSE ");
+			//transformCam.Rotate(new Vector3(xDeg, yDeg, 0), Quaternion.Angle(fromRotation, toRotation));
+			//transform.rotation = Quaternion.Lerp(fromRotation,toRotation,1);
+		}
+	}
+
 	void Update () {
+		updateRotateObject ();
+		if (true)
+			return;
 		if (!SplineWalker.normalMode)
 			return;
 		if (Input.GetMouseButtonDown (0)) {
