@@ -11,6 +11,8 @@ public class SplineWalker : MonoBehaviour {
 	public bool lookForward;
 
 	public SplineWalkerMode mode;
+	public CameraMOde cameraMode;
+
 
 	private float progress = 0f;
 	private bool goingForward = true;
@@ -23,7 +25,7 @@ public class SplineWalker : MonoBehaviour {
 	float valueScale = 0.6f;
 	float valueSizeMaxZoom = 3.8f;
 	float valueSizeMinZoom = 2.2f;
-	float oldOrthoSize;
+	public float oldOrthoSize;
 	Vector3 oldPosition;
 	Vector3 oldScale;
 	Vector3 oldRotation;
@@ -38,7 +40,7 @@ public class SplineWalker : MonoBehaviour {
 	public static int s_remainScore = 501;
 	public static int s_count = 0;
 	private static DragObjects dragObject;
-	public static bool normalMode = true;
+	public static bool normalCameraMode = true;
 	public static bool resetDart = true;
 	public static float[] listRadius;
 	public static Text remainScoreText;
@@ -69,7 +71,7 @@ public class SplineWalker : MonoBehaviour {
 	}
 	private void Update () {
 		if (isThrowDart || lookCamera) {
-			normalMode = false;
+			normalCameraMode = false;
 			if (goingForward) {
 				progress += Time.deltaTime / duration;
 				if (progress > 1f) {
@@ -79,11 +81,13 @@ public class SplineWalker : MonoBehaviour {
 							isThrowDart = false;
 							transform.localScale = new Vector3 (valueScale, valueScale, valueScale);
 							reSetSplineWalker ();
-							normalMode = true;
+							normalCameraMode = true;
 						} else {
 							lookCamera = false;
 							camera.orthographicSize = valueSizeMinZoom + (valueSizeMaxZoom - valueSizeMinZoom)*(dragObject.distanceMax2Target/(2*listRadius[6]));
-							StartCoroutine(backCamraGoingForward());
+							if(cameraMode == CameraMOde.ReviewDarts) {
+								StartCoroutine(backCamraGoingForward());
+							}
 						}	
 					} else if (mode == SplineWalkerMode.Loop) {
 						progress -= 1f;
@@ -116,7 +120,7 @@ public class SplineWalker : MonoBehaviour {
 					transform.localEulerAngles = oldRotation;
 					transform.localPosition = oldPosition;
 					resetDart = true;
-					normalMode = true;
+					normalCameraMode = true;
 				} else {
 					transform.localPosition = position;
 					currentLookAt = new Vector3(oldPosition.x, oldPosition.y, targetReview.z) + (new Vector3((targetReview.x - oldPosition.x) * progress, (targetReview.y - position.y) * progress, 0));
@@ -196,9 +200,7 @@ public class SplineWalker : MonoBehaviour {
 		if (positionoSphere.y < 0) {
 			angle = 360 - angle;
 		}
-		//Debug.Log (" ----------------------angle---------------- "+angle);
 		for (int i = 0; i < arrScores.Length; i++) {
-			//Debug.Log(i + " ---------------------------- "+((360/arrScores.Length*(i+1) - 360/(arrScores.Length*2))));
 			if(angle > 360 - 360/(arrScores.Length*2)){
 				scores = arrScores[0];
 			}
@@ -207,12 +209,10 @@ public class SplineWalker : MonoBehaviour {
 				break;
 			}
 		}
-		//if(true) return scores;
 		dartOutScreen = false;
 		float d = Vector3.Distance(positionoSphere, new Vector3(boardPostion.x, boardPostion.y, positionoSphere.z));
 		for(int i = 0; i < listRadius.Length; i++){
 			if(d <= listRadius[i]){
-				Debug.Log("iiiiiiiii --------------------------------------- "+i);
 				switch(i){
 				case 0:
 					return 50;	

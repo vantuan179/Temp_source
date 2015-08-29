@@ -8,7 +8,6 @@ public class DragObjects : MonoBehaviour {
 	private bool _mouseState;
 	private GameObject Target;
 	private GameObject[] darts = new GameObject[3];
-	public GameObject objectDart;
 	private Vector3 screenSpace;
 	private Vector3 oldpositionTarget;
 	private Vector3 oldRotationTarget;
@@ -19,8 +18,11 @@ public class DragObjects : MonoBehaviour {
 	private Vector3 mouseSpeed;
 	private float[] listRadius;
 	private SplineWalker splineWalker;
+	private SplineWalker splineWalkerCam;
 	private Vector3 tmpV;
 	private Vector3 oldPostionSpline;
+	private Vector3 dragOrigin;
+	public GameObject objectDart;
 	public Text remainScoreText;
 	public Text[] textGetScore;
 	// Use this for initialization
@@ -53,7 +55,9 @@ public class DragObjects : MonoBehaviour {
 		oldScaleTarget = Target.transform.localScale;
 		oldRotationSpline = splineWalker.spline.transform.localEulerAngles;
 		oldPostionnSpline = splineWalker.spline.transform.position;
-		cam = GameObject.Find("Main Camera").camera;
+		GameObject objCam = GameObject.Find ("Main Camera");
+		cam = objCam.camera;
+		splineWalkerCam = objCam.GetComponent <SplineWalker> ();
 
 	}
 	void OnDrawGizmosSelected() {
@@ -159,7 +163,7 @@ public class DragObjects : MonoBehaviour {
 	private float angleRotationMax = 50;
 	private float angleRotationX = 0;
 	private float angleRotationY = 0;
-	void updateRotateObject () {
+	void updateCameraReviewBoard () {
 		progress += Time.deltaTime / duration;
 		Transform transformCam = GameObject.Find ("Main Camera").transform;
 		if (Input.GetMouseButtonDown (0)) {
@@ -210,11 +214,108 @@ public class DragObjects : MonoBehaviour {
 		}
 	}
 
+	private float dragSpeed = 5;
+	private bool cameraDragging;
+	private float outerLeft = -5f;
+	private float outerRight = 5f;
+	private float outerTop = 5f;
+	private float outerBottom = -5f;
+	void updateCameraMoveBoard(){
+		Vector2 mousePosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+		
+		float left = Screen.width * 0.2f;
+		float right = Screen.width - (Screen.width * 0.2f);
+		
+		if(mousePosition.x < left)
+		{
+			cameraDragging = true;
+		}
+		else if(mousePosition.x > right)
+		{
+			cameraDragging = true;
+		}
+		if (cameraDragging) {
+			
+			if (Input.GetMouseButtonDown(0))
+			{
+				dragOrigin = Input.mousePosition;
+				_mouseState = true;
+				return;
+			}
+			if (Input.GetMouseButtonUp (0)) {
+				_mouseState = false;
+			}
+
+			if(_mouseState) {
+				Vector3 pos = Camera.main.ScreenToViewportPoint(Input.mousePosition - dragOrigin);
+				Vector3 move = new Vector3(pos.x * dragSpeed, pos.y * dragSpeed, 0);
+				dragOrigin = Input.mousePosition;
+				if (move.x > 0f)
+				{
+					if(cam.transform.position.x < outerRight)
+					{
+						cam.transform.Translate(new Vector3(move.x, 0, 0), Space.World);
+					}
+				}
+				else{
+					if(cam.transform.position.x > outerLeft)
+					{
+						cam.transform.Translate(new Vector3(move.x, 0, 0), Space.World);
+					}
+				}
+				if (move.y > 0f)
+				{
+					if(cam.transform.position.y < outerTop)
+					{
+						cam.transform.Translate(new Vector3(0, move.y, 0), Space.World);
+					}
+				}
+				else{
+					if(cam.transform.position.y > outerBottom)
+					{
+						cam.transform.Translate(new Vector3(0, move.y, 0), Space.World);
+					}
+				}
+			}
+		} 
+	}
+
+	private float[] zoomBoardRatio = {5, 5.5f, 6};
+	private int lastZoomBoard = 0;
+	private int curZoomBoard = 2;
+	private float durationZoom = 0.7f;
+	private float oldOrthoSize = 6f;
+	public float progressZoom = 0;
+	public bool isZoomBoard = false;
+	public bool IsTutorialMode = true;
+	void UpdateZoomBoard(){
+		if (!isZoomBoard)
+			return;
+		if (progressZoom == 0) {
+			oldOrthoSize = cam.orthographicSize;
+			lastZoomBoard = curZoomBoard;
+			curZoomBoard = ++curZoomBoard % 3;
+		}
+		float timeRatio = Time.deltaTime / durationZoom;
+		progressZoom += timeRatio;
+
+		cam.orthographicSize += (zoomBoardRatio [curZoomBoard] - zoomBoardRatio [lastZoomBoard]) * timeRatio;
+		if ((curZoomBoard != 0 && cam.orthographicSize >= zoomBoardRatio [curZoomBoard])
+		    || (curZoomBoard == 0 && cam.orthographicSize <= zoomBoardRatio [curZoomBoard]))
+		{
+			cam.orthographicSize = zoomBoardRatio [curZoomBoard];
+			splineWalkerCam.oldOrthoSize = cam.orthographicSize;
+			progressZoom = 0;
+			isZoomBoard = false;
+		}
+	}
 	void Update () {
-		//updateRotateObject ();
+		//UpdateZoomBoard ();
+		//updateCameraReviewBoard ();
+		//updateCameraMoveBoard ();
 		//if (true)
 			//return;
-		if (!SplineWalker.normalMode)
+		if (!SplineWalker.normalCameraMode)
 			return;
 		if (Input.GetMouseButtonDown (0)) {
 			if(SplineWalker.resetDart) {
@@ -253,7 +354,7 @@ public class DragObjects : MonoBehaviour {
 			var curPosition = Camera.main.ScreenToWorldPoint (curScreenSpace);
 			
 			//update the position of the object in the world
-			Target.transform.position = new Vector3(curPosition.x, curPosition.y+0.3f,curPosition.z);
+			Target.transform.position = new Vector3(curPosition.x, curPosition.y+1f,curPosition.z);
 		}
 	}
 #if USE_REVMOB_ANDROID
