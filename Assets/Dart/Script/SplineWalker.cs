@@ -141,10 +141,11 @@ public class SplineWalker : MonoBehaviour {
 		textGetScore[s_count-1].text = "" + scores;
 		s_currentScore += getScores ();
 		if (is2xScore () && s_remainScore == s_currentScore) {
-			remainScoreText.text = "WIN GAME";
+			remainScoreText.text = "WIN GAME!";
 			reviewCamera = true;
 			s_currentScore = 0;
 			s_count = 0;
+			s_remainScore = 501;
 			return;
 		}
 		if (s_remainScore - s_currentScore > 1) 	{
@@ -157,7 +158,7 @@ public class SplineWalker : MonoBehaviour {
 				s_count = 0;
 			}
 		} else {
-			remainScoreText.text = "BUG";
+			remainScoreText.text = "BUST!";
 			s_currentScore = 0;
 			s_count = 0;
 			reviewCamera = true;
