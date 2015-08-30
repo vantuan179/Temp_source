@@ -13,19 +13,17 @@ public class Button_even : MonoBehaviour {
 	}
 	public void OnEye()
 	{
+
+		// objDrag.isMoveCameraReview = true;
+		// objDrag.goingReviewForward = !objDrag.goingReviewForward;
+		// objDrag.cameraMode = CameraMode.ReviewBoard;
+
+
 		bt_camera.SetActive(false);
 		bt_eye.SetActive(false);
 		bt_eye1.SetActive(true);
 		bt_foot.SetActive(false);
 		bt_foot1.SetActive(true);
-		
-		SplineWalker.reviewCamera = true;
-		if (objDrag.cameraMode == CameraMode.ReviewDarts) {
-			objDrag.cameraMode = CameraMode.ReviewBoard;
-		} else {
-			SplineWalker.timeDelayReview = 0f;
-			objDrag.cameraMode = CameraMode.ReviewDarts;
-		}
 	}
 	public void OnFoot()
 	{
@@ -35,11 +33,11 @@ public class Button_even : MonoBehaviour {
 		bt_foot.SetActive(false);
 		bt_foot1.SetActive(true);
 
-		if (objDrag.cameraMode == CameraMode.ReviewDarts) {
-			objDrag.cameraMode = CameraMode.MoveBoard;
-		} else {
-			objDrag.cameraMode = CameraMode.ReviewDarts;
-		}
+		// if (objDrag.cameraMode == CameraMode.ReviewDarts) {
+			// objDrag.cameraMode = CameraMode.MoveBoard;
+		// } else {
+			// objDrag.cameraMode = CameraMode.ReviewDarts;
+		// }
 	}
 	public void OnInfor()
 	{
