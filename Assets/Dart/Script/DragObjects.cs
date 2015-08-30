@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 
 public class DragObjects : MonoBehaviour {
-	private bool _mouseState;
+	public bool _mouseState;
 	private GameObject Target;
 	private GameObject[] darts = new GameObject[3];
 	private Vector3 screenSpace;
@@ -28,6 +28,7 @@ public class DragObjects : MonoBehaviour {
 	public CameraMode cameraMode;
 	Vector3 oldPostionCamera;
 	Vector3 oldAnglesCamera;
+	Button[] arrButton = new Button[4];
 	// Use this for initialization
 	void Start () {
 #if USE_REVMOB_ANDROID
@@ -38,6 +39,10 @@ public class DragObjects : MonoBehaviour {
 		string[] tubes = {
 			"Tube01", "Tube02", "Tube03", "Tube04", "Tube05", "Tube06", "Tube07" 
 		};
+		arrButton [0] = GameObject.Find ("Bt_Camera").GetComponent<Button>();
+		arrButton [1] = GameObject.Find ("Bt_eye").GetComponent<Button>();
+		arrButton [2] = GameObject.Find ("Bt_foot").GetComponent<Button>();
+		arrButton [3] = GameObject.Find ("Bt_infor").GetComponent<Button>();
 		listRadius = new float[tubes.Length];
 		for (int i = 0; i < tubes.Length; i++) {
 			GameObject obj = GameObject.Find(tubes[i]);
@@ -63,9 +68,11 @@ public class DragObjects : MonoBehaviour {
 		oldAnglesCamera = objCam.transform.eulerAngles;
 		cam = objCam.camera;
 		cam.transform.LookAt(GameObject.Find ("ObjectBoard").transform.position);
+		oldLookAt = GameObject.Find ("ObjectBoard").transform.position;
 		splineWalkerCam = objCam.GetComponent <SplineWalker> ();
 
 	}
+
 	void OnDrawGizmosSelected() {
 		Gizmos.color = Color.yellow;
 		Gizmos.DrawWireSphere (new Vector3(0, 0, 1), 5);
@@ -173,11 +180,16 @@ public class DragObjects : MonoBehaviour {
 	private float lastReviewZoomBoard, curReviewZoomBoard;
 	public bool goingReviewForward;
 	public bool isMoveCameraReview;
+	public bool isDragCameraReview;
 	private Vector3 oldPostionForwardReviewCamera;
 	private Vector3 oldAnglesForwardReviewCamera;
 	private Vector3 oldPostionBackReviewCamera;
 	private Vector3 oldLookAt = Vector3.zero;
 	void updateCameraReviewBoard () {
+		if (isDragCameraReview) {
+			updateCameraMoveBoard();
+			return;
+		}
 		if (isMoveCameraReview) {
 			Vector3 v1 = Vector3.zero, v2 = Vector3.zero;
 			if (goingReviewForward) {
@@ -252,6 +264,7 @@ public class DragObjects : MonoBehaviour {
 				}
 				progressZoom = 0;
 				isMoveCameraReview = false;
+				_mouseState = false;
 			}
 			return;
 		}	
@@ -380,10 +393,12 @@ public class DragObjects : MonoBehaviour {
 						cam.transform.localPosition = new Vector3(cam.transform.localPosition.x, outerBottom, cam.transform.localPosition.z);
 					}
 				}
-				foreach(BezierSpline splie in splineWalkerCam.splines) {
-					splie.transform.Translate(cam.transform.localPosition - lastPostion, Space.World);
+				if(cameraMode != CameraMode.ReviewBoard) {
+					foreach(BezierSpline splie in splineWalkerCam.splines) {
+						splie.transform.Translate(cam.transform.localPosition - lastPostion, Space.World);
+					}
+					splineWalkerCam.oldPosition = cam.transform.localPosition;
 				}
-				splineWalkerCam.oldPosition = cam.transform.localPosition;
 			}
 		} 
 	}
@@ -417,6 +432,16 @@ public class DragObjects : MonoBehaviour {
 			cameraMode = CameraMode.ReviewDarts;
 		}
 	}
+
+	bool isTouchButton(Vector3 input){
+		foreach (Button bt in arrButton) {
+			Rect rect = bt.GetComponent<RectTransform>().rect;
+			if(rect.Contains(input))
+				return true;
+		}
+		return false;
+	}
+
 	void Update () {
 		if (cameraMode == CameraMode.ZoomBoard) {
 			UpdateZoomBoard ();
@@ -427,6 +452,8 @@ public class DragObjects : MonoBehaviour {
 		else if(cameraMode == CameraMode.MoveBoard)
 			updateCameraMoveBoard ();
 		if (cameraMode != CameraMode.ReviewDarts || !SplineWalker.normalCameraMode)
+			return;
+		if(Input.mousePosition.y < 140 && (Input.mousePosition.x < 45 || Input.mousePosition.x > Screen.width - 45) )
 			return;
 		if (Input.GetMouseButtonDown (0)) {
 			if(SplineWalker.resetDart) {
@@ -442,8 +469,10 @@ public class DragObjects : MonoBehaviour {
 			oldMouse = Input.mousePosition;
 			screenSpace = Camera.main.WorldToScreenPoint (Target.transform.position);
 			Target.transform.position = Camera.main.ScreenToWorldPoint (new Vector3 (Input.mousePosition.x, Input.mousePosition.y, screenSpace.z));
+
 		}
 		if (Input.GetMouseButtonUp (0)) {
+			if(!Target.activeSelf) return;
 			float d = Vector2.Distance(Input.mousePosition, oldMouse);
 			if(d > 5 && Input.mousePosition.y > oldMouse.y) {
 				Vector2 v1 = new Vector2(0, 1);
@@ -455,6 +484,7 @@ public class DragObjects : MonoBehaviour {
 				splineWalker.isThrowDart = true;
 			} else {
 				Target.SetActive(false);
+				_mouseState = false;
 			}
 		}
 		if (_mouseState) {
