@@ -12,12 +12,18 @@ public class Button_even : MonoBehaviour {
 	}
 	public void OnCamera()
 	{
+		if(objDrag._mouseState) {
+			objDrag.Target.SetActive(false);
+			objDrag._mouseState = false;
+		}
 		objDrag.cameraMode = CameraMode.ZoomBoard;
-		objDrag._mouseState = false;
 	}
 	public void OnEye()
 	{
-		objDrag._mouseState = false;
+		if(objDrag._mouseState) {
+			objDrag.Target.SetActive(false);
+			objDrag._mouseState = false;
+		}
 		objDrag.isMoveCameraReview = true;
 		objDrag.goingReviewForward = !objDrag.goingReviewForward;
 		objDrag.cameraMode = CameraMode.ReviewBoard;
@@ -31,7 +37,10 @@ public class Button_even : MonoBehaviour {
 	}
 	public void OnFoot()
 	{
-		objDrag._mouseState = false;
+		if(objDrag._mouseState) {
+			objDrag.Target.SetActive(false);
+			objDrag._mouseState = false;
+		}
 		bt_camera.SetActive(false);
 		bt_eye.SetActive(false);
 		bt_eye1.SetActive(true);
@@ -44,11 +53,18 @@ public class Button_even : MonoBehaviour {
 	}
 	public void OnInfor(int level)
 	{
+		if(objDrag._mouseState) {
+			objDrag.Target.SetActive(false);
+			objDrag._mouseState = false;
+		}
 		Application.LoadLevel(level);
 	}
 	public void OnEye1()
 	{
-		objDrag._mouseState = false;
+		if(objDrag._mouseState) {
+			objDrag.Target.SetActive(false);
+			objDrag._mouseState = false;
+		}
 		if(objDrag.cameraMode != CameraMode.MoveBoard) {
 			objDrag.isMoveCameraReview = true;
 			objDrag.goingReviewForward = !objDrag.goingReviewForward;
@@ -66,7 +82,10 @@ public class Button_even : MonoBehaviour {
 	}
 	public void OnFoot1()
 	{
-		objDrag._mouseState = false;
+		if(objDrag._mouseState) {
+			objDrag.Target.SetActive(false);
+			objDrag._mouseState = false;
+		}
 		bt_camera.SetActive(false);
 		bt_eye.SetActive(false);
 		bt_eye1.SetActive(true);
@@ -77,7 +96,10 @@ public class Button_even : MonoBehaviour {
 	}
 	public void OnFoot2()
 	{
-		objDrag._mouseState = false;
+		if(objDrag._mouseState) {
+			objDrag.Target.SetActive(false);
+			objDrag._mouseState = false;
+		}
 		bt_camera.SetActive(false);
 		bt_eye.SetActive(false);
 		bt_eye1.SetActive(true);

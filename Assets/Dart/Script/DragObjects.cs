@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class DragObjects : MonoBehaviour {
 	public bool _mouseState;
-	private GameObject Target;
+	public GameObject Target;
 	private GameObject[] darts = new GameObject[3];
 	private Vector3 screenSpace;
 	private Vector3 oldpositionTarget;
@@ -453,13 +453,13 @@ public class DragObjects : MonoBehaviour {
 			updateCameraMoveBoard ();
 		if (cameraMode != CameraMode.ReviewDarts || !SplineWalker.normalCameraMode)
 			return;
-		if (Input.mousePosition.y < 140 && (Input.mousePosition.x < 60 || Input.mousePosition.x > Screen.width - 60)) {
-				if(_mouseState) {
-					Target.SetActive(false);
-					_mouseState = false;
-				}
-				return;
+		/*if (Input.mousePosition.y < 140 && (Input.mousePosition.x < 60 || Input.mousePosition.x > Screen.width - 60)) {
+			if(_mouseState) {
+				Target.SetActive(false);
+				_mouseState = false;
 			}
+			return;
+		}*/
 		if (Input.GetMouseButtonDown (0)) {
 			if(SplineWalker.resetDart) {
 				SplineWalker.resetDart = false;
