@@ -453,8 +453,13 @@ public class DragObjects : MonoBehaviour {
 			updateCameraMoveBoard ();
 		if (cameraMode != CameraMode.ReviewDarts || !SplineWalker.normalCameraMode)
 			return;
-		if(Input.mousePosition.y < 140 && (Input.mousePosition.x < 45 || Input.mousePosition.x > Screen.width - 45) )
-			return;
+		if (Input.mousePosition.y < 140 && (Input.mousePosition.x < 45 || Input.mousePosition.x > Screen.width - 45)) {
+				if(_mouseState) {
+					Target.SetActive(false);
+					_mouseState = false;
+				}
+				return;
+			}
 		if (Input.GetMouseButtonDown (0)) {
 			if(SplineWalker.resetDart) {
 				SplineWalker.resetDart = false;
