@@ -25,6 +25,7 @@ public class DragObjects : MonoBehaviour {
 	public GameObject objectDart;
 	public Text remainScoreText;
 	public Text[] textGetScore;
+	public CameraMode cameraMode;
 	// Use this for initialization
 	void Start () {
 #if USE_REVMOB_ANDROID
@@ -216,13 +217,16 @@ public class DragObjects : MonoBehaviour {
 
 	private float dragSpeed = 5;
 	private bool cameraDragging;
-	private float outerLeft = -5f;
-	private float outerRight = 5f;
-	private float outerTop = 5f;
-	private float outerBottom = -5f;
+	private float outerLeft = -4f;
+	private float outerRight = 4f;
+	private float outerTop = 3.5f;
+	private float outerBottom = -3.5f;
 	void updateCameraMoveBoard(){
 		Vector2 mousePosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-		
+		outerLeft = -listRadius [6];
+		outerRight = listRadius [6];
+		outerTop = listRadius [6];
+		outerBottom = -listRadius [6];
 		float left = Screen.width * 0.2f;
 		float right = Screen.width - (Screen.width * 0.2f);
 		
@@ -248,19 +252,23 @@ public class DragObjects : MonoBehaviour {
 
 			if(_mouseState) {
 				Vector3 pos = Camera.main.ScreenToViewportPoint(Input.mousePosition - dragOrigin);
-				Vector3 move = new Vector3(pos.x * dragSpeed, pos.y * dragSpeed, 0);
+				Vector3 move = new Vector3(-pos.x * dragSpeed, -pos.y * dragSpeed, 0);
 				dragOrigin = Input.mousePosition;
 				if (move.x > 0f)
 				{
 					if(cam.transform.position.x < outerRight)
 					{
 						cam.transform.Translate(new Vector3(move.x, 0, 0), Space.World);
+					} else {
+						cam.transform.localPosition = new Vector3(outerRight, cam.transform.localPosition.y, cam.transform.localPosition.z);
 					}
 				}
 				else{
 					if(cam.transform.position.x > outerLeft)
 					{
 						cam.transform.Translate(new Vector3(move.x, 0, 0), Space.World);
+					} else {
+						cam.transform.localPosition = new Vector3(outerLeft, cam.transform.localPosition.y, cam.transform.localPosition.z);
 					}
 				}
 				if (move.y > 0f)
@@ -268,12 +276,16 @@ public class DragObjects : MonoBehaviour {
 					if(cam.transform.position.y < outerTop)
 					{
 						cam.transform.Translate(new Vector3(0, move.y, 0), Space.World);
+					} else {
+						cam.transform.localPosition = new Vector3(cam.transform.localPosition.x, outerTop, cam.transform.localPosition.z);
 					}
 				}
 				else{
 					if(cam.transform.position.y > outerBottom)
 					{
 						cam.transform.Translate(new Vector3(0, move.y, 0), Space.World);
+					} else {
+						cam.transform.localPosition = new Vector3(cam.transform.localPosition.x, outerBottom, cam.transform.localPosition.z);
 					}
 				}
 			}
@@ -289,7 +301,7 @@ public class DragObjects : MonoBehaviour {
 	public bool isZoomBoard = false;
 	public bool IsTutorialMode = true;
 	void UpdateZoomBoard(){
-		if (!isZoomBoard)
+		if (cameraMode != CameraMode.ZoomBoard)
 			return;
 		if (progressZoom == 0) {
 			oldOrthoSize = cam.orthographicSize;
@@ -306,16 +318,19 @@ public class DragObjects : MonoBehaviour {
 			cam.orthographicSize = zoomBoardRatio [curZoomBoard];
 			splineWalkerCam.oldOrthoSize = cam.orthographicSize;
 			progressZoom = 0;
-			isZoomBoard = false;
+			cameraMode = CameraMode.ReviewDarts;
 		}
 	}
 	void Update () {
-		//UpdateZoomBoard ();
-		//updateCameraReviewBoard ();
-		//updateCameraMoveBoard ();
-		//if (true)
-			//return;
-		if (!SplineWalker.normalCameraMode)
+		if (cameraMode == CameraMode.ZoomBoard) {
+			UpdateZoomBoard ();
+		} else if (cameraMode == CameraMode.ReviewBoard) {
+			if(!SplineWalker.reviewCamera)
+				updateCameraReviewBoard ();
+		}
+		else if(cameraMode == CameraMode.MoveBoard)
+			updateCameraMoveBoard ();
+		if (cameraMode != CameraMode.ReviewDarts || !SplineWalker.normalCameraMode)
 			return;
 		if (Input.GetMouseButtonDown (0)) {
 			if(SplineWalker.resetDart) {

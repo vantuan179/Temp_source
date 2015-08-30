@@ -1,4 +1,4 @@
-﻿public enum CameraMOde {
+﻿public enum CameraMode {
 	ReviewDarts,
 	ReviewBoard,
 	MoveBoard,
