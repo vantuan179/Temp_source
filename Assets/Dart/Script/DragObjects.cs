@@ -26,6 +26,8 @@ public class DragObjects : MonoBehaviour {
 	public Text remainScoreText;
 	public Text[] textGetScore;
 	public CameraMode cameraMode;
+	Vector3 oldPostionCamera;
+	Vector3 oldAnglesCamera;
 	// Use this for initialization
 	void Start () {
 #if USE_REVMOB_ANDROID
@@ -57,7 +59,10 @@ public class DragObjects : MonoBehaviour {
 		oldRotationSpline = splineWalker.spline.transform.localEulerAngles;
 		oldPostionnSpline = splineWalker.spline.transform.position;
 		GameObject objCam = GameObject.Find ("Main Camera");
+		oldPostionCamera = objCam.transform.position;
+		oldAnglesCamera = objCam.transform.eulerAngles;
 		cam = objCam.camera;
+		cam.transform.LookAt(GameObject.Find ("ObjectBoard").transform.position);
 		splineWalkerCam = objCam.GetComponent <SplineWalker> ();
 
 	}
@@ -164,7 +169,93 @@ public class DragObjects : MonoBehaviour {
 	private float angleRotationMax = 50;
 	private float angleRotationX = 0;
 	private float angleRotationY = 0;
+	private float reviewCameraZoom = 4;
+	private float lastReviewZoomBoard, curReviewZoomBoard;
+	public bool goingReviewForward;
+	public bool isMoveCameraReview;
+	private Vector3 oldPostionForwardReviewCamera;
+	private Vector3 oldAnglesForwardReviewCamera;
+	private Vector3 oldPostionBackReviewCamera;
+	private Vector3 oldLookAt = Vector3.zero;
 	void updateCameraReviewBoard () {
+		if (isMoveCameraReview) {
+			Vector3 v1 = Vector3.zero, v2 = Vector3.zero;
+			if (goingReviewForward) {
+				if (progressZoom == 0) {
+					Vector3 v = cam.transform.position + cam.transform.forward;
+					oldLookAt = GameObject.Find ("ObjectBoard").transform.position + (cam.transform.position - oldPostionCamera);
+					oldOrthoSize = splineWalkerCam.oldOrthoSize;
+					lastReviewZoomBoard = oldOrthoSize;
+					curReviewZoomBoard = reviewCameraZoom;
+					oldPostionBackReviewCamera = cam.transform.position;
+				}
+			} else {
+				if (progressZoom == 0) {
+					oldOrthoSize = splineWalkerCam.oldOrthoSize;
+					lastReviewZoomBoard = reviewCameraZoom;
+					curReviewZoomBoard = oldOrthoSize;
+					oldPostionForwardReviewCamera = cam.transform.position;
+				}
+			}
+			float timeRatio = Time.deltaTime / durationZoom;
+			progressZoom += timeRatio;
+			cam.orthographicSize += (curReviewZoomBoard - lastReviewZoomBoard) * timeRatio;
+			if(!goingReviewForward) {
+				v1 = oldPostionBackReviewCamera - oldPostionForwardReviewCamera;
+				v2 = oldAnglesCamera - oldAnglesForwardReviewCamera;
+				cam.transform.position += v1 * timeRatio;
+				cam.transform.transform.LookAt(oldLookAt);
+			}
+			if ((goingReviewForward && cam.orthographicSize <= curReviewZoomBoard)
+				|| (!goingReviewForward && cam.orthographicSize >= curReviewZoomBoard)) {
+				cam.orthographicSize = curReviewZoomBoard;
+				if (!goingReviewForward) {
+					if(v1.x > 0) {
+						if(oldPostionBackReviewCamera.x > cam.transform.position.x)
+							return;
+						else
+							cam.transform.position = new Vector3(oldPostionBackReviewCamera.x, cam.transform.position.y, cam.transform.position.z);
+					} else {
+						if(oldPostionBackReviewCamera.x < cam.transform.position.x)
+							return;
+						else
+							cam.transform.position = new Vector3(oldPostionBackReviewCamera.x, cam.transform.position.y, cam.transform.position.z);
+					}
+					if(v1.y > 0) {
+						if(oldPostionBackReviewCamera.y > cam.transform.position.y)
+							return;
+						else
+							cam.transform.position = new Vector3(cam.transform.position.x, oldPostionBackReviewCamera.y, cam.transform.position.z);
+					} else {
+						if(oldPostionBackReviewCamera.y < cam.transform.position.y)
+							return;
+						else
+							cam.transform.position = new Vector3(cam.transform.position.x, oldPostionBackReviewCamera.y, cam.transform.position.z);
+					}
+					if(v1.z > 0) {
+						if(oldPostionBackReviewCamera.z > cam.transform.position.z)
+							return;
+						else
+							cam.transform.position = new Vector3(cam.transform.position.x, cam.transform.position.y, oldPostionBackReviewCamera.z);
+					} else {
+						if(oldPostionBackReviewCamera.z < cam.transform.position.z)
+							return;
+						else
+							cam.transform.position = new Vector3(cam.transform.position.x, cam.transform.position.y, oldPostionBackReviewCamera.z);
+					}
+
+					cam.transform.position = oldPostionBackReviewCamera;
+					//cam.transform.eulerAngles = oldAnglesCamera;
+					cam.transform.transform.LookAt(oldLookAt);
+
+					cameraMode = CameraMode.ReviewDarts;
+				}
+				progressZoom = 0;
+				isMoveCameraReview = false;
+			}
+			return;
+		}	
+
 		progress += Time.deltaTime / duration;
 		Transform transformCam = GameObject.Find ("Main Camera").transform;
 		if (Input.GetMouseButtonDown (0)) {
@@ -251,6 +342,7 @@ public class DragObjects : MonoBehaviour {
 			}
 
 			if(_mouseState) {
+				Vector3 lastPostion = cam.transform.localPosition;
 				Vector3 pos = Camera.main.ScreenToViewportPoint(Input.mousePosition - dragOrigin);
 				Vector3 move = new Vector3(-pos.x * dragSpeed, -pos.y * dragSpeed, 0);
 				dragOrigin = Input.mousePosition;
@@ -288,11 +380,15 @@ public class DragObjects : MonoBehaviour {
 						cam.transform.localPosition = new Vector3(cam.transform.localPosition.x, outerBottom, cam.transform.localPosition.z);
 					}
 				}
+				foreach(BezierSpline splie in splineWalkerCam.splines) {
+					splie.transform.Translate(cam.transform.localPosition - lastPostion, Space.World);
+				}
+				splineWalkerCam.oldPosition = cam.transform.localPosition;
 			}
 		} 
 	}
 
-	private float[] zoomBoardRatio = {5, 5.5f, 6};
+	private float[] zoomBoardRatio = {6, 6.5f, 7};
 	private int lastZoomBoard = 0;
 	private int curZoomBoard = 2;
 	private float durationZoom = 0.7f;

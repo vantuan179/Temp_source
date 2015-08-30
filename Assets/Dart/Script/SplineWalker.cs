@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class SplineWalker : MonoBehaviour {
 
 	public BezierSpline spline;
-	BezierSpline[] splines = new BezierSpline[2];
+	public BezierSpline[] splines = new BezierSpline[2];
 	public float duration;
 
 	public bool lookForward;
@@ -24,7 +24,7 @@ public class SplineWalker : MonoBehaviour {
 	float valueSizeMaxZoom = 3.8f;
 	float valueSizeMinZoom = 2.2f;
 	public float oldOrthoSize;
-	Vector3 oldPosition;
+	public Vector3 oldPosition;
 	Vector3 oldScale;
 	Vector3 oldRotation;
 	Vector3 currentLookAt;

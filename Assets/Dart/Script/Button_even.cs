@@ -13,13 +13,10 @@ public class Button_even : MonoBehaviour {
 	}
 	public void OnEye()
 	{
-		SplineWalker.reviewCamera = true;
-		if (objDrag.cameraMode == CameraMode.ReviewDarts) {
-			objDrag.cameraMode = CameraMode.ReviewBoard;
-		} else {
-			SplineWalker.timeDelayReview = 0f;
-			objDrag.cameraMode = CameraMode.ReviewDarts;
-		}
+		objDrag.isMoveCameraReview = true;
+		objDrag.goingReviewForward = !objDrag.goingReviewForward;
+		objDrag.cameraMode = CameraMode.ReviewBoard;
+
 	}
 	public void OnFoot()
 	{
