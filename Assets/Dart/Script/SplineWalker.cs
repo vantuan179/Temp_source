@@ -11,8 +11,6 @@ public class SplineWalker : MonoBehaviour {
 	public bool lookForward;
 
 	public SplineWalkerMode mode;
-	public CameraMOde cameraMode;
-
 
 	private float progress = 0f;
 	private bool goingForward = true;
@@ -85,7 +83,7 @@ public class SplineWalker : MonoBehaviour {
 						} else {
 							lookCamera = false;
 							camera.orthographicSize = valueSizeMinZoom + (valueSizeMaxZoom - valueSizeMinZoom)*(dragObject.distanceMax2Target/(2*listRadius[6]));
-							if(cameraMode == CameraMOde.ReviewDarts) {
+							if(dragObject.cameraMode == CameraMode.ReviewDarts) {
 								StartCoroutine(backCamraGoingForward());
 							}
 						}	
@@ -143,6 +141,7 @@ public class SplineWalker : MonoBehaviour {
 		if (is2xScore () && s_remainScore == s_currentScore) {
 			remainScoreText.text = "WIN GAME!";
 			reviewCamera = true;
+			timeDelayReview = timeDelayReviewDefault;
 			s_currentScore = 0;
 			s_count = 0;
 			s_remainScore = 501;
@@ -152,6 +151,7 @@ public class SplineWalker : MonoBehaviour {
 			if (s_count == 3) {
 
 				reviewCamera = true;
+				timeDelayReview = timeDelayReviewDefault;
 				s_remainScore -= s_currentScore;
 
 				s_currentScore = 0;
@@ -162,13 +162,16 @@ public class SplineWalker : MonoBehaviour {
 			s_currentScore = 0;
 			s_count = 0;
 			reviewCamera = true;
+			timeDelayReview = timeDelayReviewDefault;
 			return;
 		}
 		remainScoreText.text = "" + s_remainScore;
 
 	}	
+	float timeDelayReviewDefault = 2f;
+	public static float timeDelayReview;
 	IEnumerator backCamraGoingForward(){
-		yield return new WaitForSeconds(2);
+		yield return new WaitForSeconds(timeDelayReview);
 
 		lookCamera = true;
 		goingForward = false;
