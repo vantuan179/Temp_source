@@ -81,4 +81,9 @@ public class Button_even : MonoBehaviour {
 
 	}
 
+	public void notice()
+	{
+
+	}
+
 }
