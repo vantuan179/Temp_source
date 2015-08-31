@@ -325,7 +325,12 @@ public class DragObjects : MonoBehaviour {
 	private float outerRight = 4f;
 	private float outerTop = 3.5f;
 	private float outerBottom = -3.5f;
+	public bool isResetMoveCamera;
 	void updateCameraMoveBoard(){
+		if (isResetMoveCamera) {
+			ResetCameraMoveBoard();
+			return;
+		}
 		Vector2 mousePosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
 		outerLeft = -listRadius [6];
 		outerRight = listRadius [6];
@@ -401,6 +406,48 @@ public class DragObjects : MonoBehaviour {
 				}
 			}
 		} 
+	}
+
+	Vector3 lastPostionCameraMove = Vector3.zero;
+	private float durationResetMove = 0.5f;
+	void ResetCameraMoveBoard()
+	{
+		float deltaTime = Time.deltaTime / durationResetMove;
+		if (progress == 0) {
+			lastPostionCameraMove = cam.transform.position;		
+		}
+		progress += deltaTime;
+		Vector3 v = oldPostionCamera - lastPostionCameraMove;
+		cam.transform.position += v * deltaTime;
+
+		if(progress > durationResetMove) {
+			if(v.x > 0) {
+				if(oldPostionCamera.x > cam.transform.position.x)
+					return;
+				else
+					cam.transform.position = new Vector3(oldPostionCamera.x, cam.transform.position.y, cam.transform.position.z);
+			} else {
+				if(oldPostionCamera.x < cam.transform.position.x)
+					return;
+				else
+					cam.transform.position = new Vector3(oldPostionCamera.x, cam.transform.position.y, cam.transform.position.z);
+			}
+			if(v.y > 0) {
+				if(oldPostionCamera.y > cam.transform.position.y)
+					return;
+				else
+					cam.transform.position = new Vector3(cam.transform.position.x, oldPostionCamera.y, cam.transform.position.z);
+			} else {
+				if(oldPostionCamera.y < cam.transform.position.y)
+					return;
+				else
+					cam.transform.position = new Vector3(cam.transform.position.x, oldPostionCamera.y, cam.transform.position.z);
+			}
+			cam.transform.position = oldPostionCamera;
+			progress = 0;
+			isResetMoveCamera = false;
+			_mouseState = false;
+		}
 	}
 
 	private float[] zoomBoardRatio = {6, 6.5f, 7};

@@ -110,7 +110,7 @@ public class Button_even : MonoBehaviour {
 	}
 	public void OnFoot3()
 	{
-
+		objDrag.isResetMoveCamera = true;
 	}
 
 	public void notice()

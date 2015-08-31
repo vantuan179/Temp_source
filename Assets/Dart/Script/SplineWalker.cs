@@ -191,9 +191,7 @@ public class SplineWalker : MonoBehaviour {
 	}
 
 
-	public static void changeViewCamera(){
 
-	}
 	int[] arrScores = {6,13,4,18,1,20,5,12,9,14,11,8,16,7,19,3,17,2,15,10};
 	int getScores(){
 		int scores = 0;
