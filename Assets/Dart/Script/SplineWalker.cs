@@ -34,7 +34,7 @@ public class SplineWalker : MonoBehaviour {
 	public bool dartOutScreen = true;
 	//score
 	public static bool reviewCamera = false;
-	public static int s_currentScore = 0;
+	public static int s_currentScore = -1;
 	public static int s_remainScore = 501;
 	public static int s_count = 0;
 	private static DragObjects dragObject;
@@ -47,8 +47,10 @@ public class SplineWalker : MonoBehaviour {
 	//private CameraSwitch jsScript;  
 	void Start () {
 		//init score
-		s_currentScore = 0;
-		s_remainScore = 501;
+		if(s_currentScore == -1) {
+			s_currentScore = 0;
+			s_remainScore = 501;
+		}
 
 		isCameraMode = gameObject.name.Equals ("Main Camera") ? true : false;
 		boardPostion = GameObject.Find ("ObjectBoard").transform.position;
@@ -137,7 +139,7 @@ public class SplineWalker : MonoBehaviour {
 		//mode 501
 		float scores = getScores ();
 		textGetScore[s_count-1].text = "" + scores;
-		s_currentScore += getScores ();
+		s_currentScore += (int)scores;
 		if (is2xScore () && s_remainScore == s_currentScore) {
 			remainScoreText.text = "WIN GAME!";
 			reviewCamera = true;
