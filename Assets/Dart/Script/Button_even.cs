@@ -2,7 +2,7 @@
 using System.Collections;
 
 public class Button_even : MonoBehaviour {
-	public GameObject bt_camera, bt_eye, bt_foot, bt_infor, bt_eye1, bt_foot1, bt_foot2, bt_foot3 ;
+	public GameObject bt_camera, bt_eye, bt_foot, bt_infor, bt_eye1, bt_foot1, bt_foot2, bt_foot3, checkout;
 	DragObjects objDrag;
 	void Start () {
 		objDrag = GameObject.Find ("ObjectBoard").GetComponent<DragObjects>();	
@@ -115,9 +115,16 @@ public class Button_even : MonoBehaviour {
 		objDrag.isResetMoveCamera = true;
 	}
 
+	public void Onplayagain()
+	{
+		checkout.SetActive (false);
+		Time.timeScale = 1;	
+	}
+
 	public void notice()
 	{
-
+		checkout.SetActive (true);
+		Time.timeScale = 0;
 	}
 
 }
