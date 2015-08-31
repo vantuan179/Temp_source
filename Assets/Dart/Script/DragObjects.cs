@@ -185,9 +185,10 @@ public class DragObjects : MonoBehaviour {
 	private Vector3 oldAnglesForwardReviewCamera;
 	private Vector3 oldPostionBackReviewCamera;
 	private Vector3 oldLookAt = Vector3.zero;
+	private Vector3 lastLookAt = Vector3.zero;
 	void updateCameraReviewBoard () {
 		if (isDragCameraReview) {
-			updateCameraMoveBoard();
+			updateMoveCameraReviewBoard();
 			return;
 		}
 		if (isMoveCameraReview) {
@@ -196,6 +197,8 @@ public class DragObjects : MonoBehaviour {
 				if (progressZoom == 0) {
 					Vector3 v = cam.transform.position + cam.transform.forward;
 					oldLookAt = GameObject.Find ("ObjectBoard").transform.position + (cam.transform.position - oldPostionCamera);
+					moveLookAt = Vector3.zero;
+					Debug.Log("1111111111111111-------------------------- ["+moveLookAt.x+","+moveLookAt.y+","+moveLookAt.z+"]");
 					oldOrthoSize = splineWalkerCam.oldOrthoSize;
 					lastReviewZoomBoard = oldOrthoSize;
 					curReviewZoomBoard = reviewCameraZoom;
@@ -207,6 +210,9 @@ public class DragObjects : MonoBehaviour {
 					lastReviewZoomBoard = reviewCameraZoom;
 					curReviewZoomBoard = oldOrthoSize;
 					oldPostionForwardReviewCamera = cam.transform.position;
+					Vector3 v = moveLookAt;
+					lastLookAt = oldLookAt + moveLookAt;
+					//lastLookAt = GameObject.Find ("ObjectBoard").transform.position + (cam.transform.position - oldPostionCamera);
 				}
 			}
 			float timeRatio = Time.deltaTime / durationZoom;
@@ -216,7 +222,7 @@ public class DragObjects : MonoBehaviour {
 				v1 = oldPostionBackReviewCamera - oldPostionForwardReviewCamera;
 				v2 = oldAnglesCamera - oldAnglesForwardReviewCamera;
 				cam.transform.position += v1 * timeRatio;
-				cam.transform.transform.LookAt(oldLookAt);
+				cam.transform.transform.LookAt(lastLookAt + (oldLookAt - lastLookAt) * progressZoom);
 			}
 			if ((goingReviewForward && cam.orthographicSize <= curReviewZoomBoard)
 				|| (!goingReviewForward && cam.orthographicSize >= curReviewZoomBoard)) {
@@ -319,6 +325,49 @@ public class DragObjects : MonoBehaviour {
 		}
 	}
 
+	bool _mouseStateReview;
+	bool cameraDraggingReview;
+	Vector3 panOrigin, oldPos;
+	void updateMoveCameraReviewBoard(){
+		Vector2 mousePosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+		outerLeft = -listRadius [6];
+		outerRight = listRadius [6];
+		outerTop = listRadius [6];
+		outerBottom = -listRadius [6];
+		float left = Screen.width * 0.2f;
+		float right = Screen.width - (Screen.width * 0.2f);
+		
+		if(mousePosition.x < left)
+		{
+			cameraDraggingReview = true;
+		}
+		else if(mousePosition.x > right)
+		{
+			cameraDraggingReview = true;
+		}
+		if (cameraDraggingReview) {
+			if (Input.GetMouseButtonDown(0))
+			{
+				_mouseStateReview = true;
+				oldPos = cam.transform.position;
+				panOrigin = Camera.main.ScreenToViewportPoint(Input.mousePosition); 
+			}
+			if (Input.GetMouseButtonUp (0)) {
+				_mouseStateReview = false;
+				moveLookAt += tmpPosAdd;
+				Debug.Log(++count+"----------AAAAAAAAAAAAAA---------------- ["+moveLookAt.x+","+moveLookAt.y+","+moveLookAt.z+"]");
+			}
+			
+			if(_mouseStateReview) {
+				Vector3 pos1 = Camera.main.ScreenToViewportPoint(Input.mousePosition) - panOrigin;
+				cam.transform.position = oldPos - pos1 * 5;
+				tmpPosAdd = (-pos1 * 5);
+			}
+		}
+	}
+	int count=0;
+	private Vector3 tmpPosAdd = Vector3.zero;
+	private Vector3 moveLookAt = Vector3.zero;
 	private float dragSpeed = 5;
 	private bool cameraDragging;
 	private float outerLeft = -4f;
@@ -398,15 +447,16 @@ public class DragObjects : MonoBehaviour {
 						cam.transform.localPosition = new Vector3(cam.transform.localPosition.x, outerBottom, cam.transform.localPosition.z);
 					}
 				}
-				if(cameraMode != CameraMode.ReviewBoard) {
-					foreach(BezierSpline splie in splineWalkerCam.splines) {
-						splie.transform.Translate(cam.transform.localPosition - lastPostion, Space.World);
-					}
-					splineWalkerCam.oldPosition = cam.transform.localPosition;
+
+				foreach(BezierSpline splie in splineWalkerCam.splines) {
+					splie.transform.Translate(cam.transform.localPosition - lastPostion, Space.World);
 				}
+				splineWalkerCam.oldPosition = cam.transform.localPosition;
+
 			}
 		} 
 	}
+
 
 	Vector3 lastPostionCameraMove = Vector3.zero;
 	private float durationResetMove = 0.5f;

@@ -48,7 +48,6 @@ public class Button_even : MonoBehaviour {
 		bt_foot1.SetActive(false);
 		bt_foot2.SetActive(false);
 		bt_foot3.SetActive(true);
-
 		objDrag.cameraMode = CameraMode.MoveBoard;
 	}
 	public void OnInfor(int level)
@@ -72,6 +71,7 @@ public class Button_even : MonoBehaviour {
 		} else {
 			objDrag.cameraMode = CameraMode.ReviewDarts;
 		}
+		objDrag.isDragCameraReview = false;
 		bt_camera.SetActive(true);
 		bt_eye.SetActive(true);
 		bt_eye1.SetActive(false);
@@ -86,6 +86,7 @@ public class Button_even : MonoBehaviour {
 			objDrag.Target.SetActive(false);
 			objDrag._mouseState = false;
 		}
+		objDrag.isDragCameraReview = !objDrag.isDragCameraReview;
 		bt_camera.SetActive(false);
 		bt_eye.SetActive(false);
 		bt_eye1.SetActive(true);
@@ -100,6 +101,7 @@ public class Button_even : MonoBehaviour {
 			objDrag.Target.SetActive(false);
 			objDrag._mouseState = false;
 		}
+		objDrag.isDragCameraReview = !objDrag.isDragCameraReview;
 		bt_camera.SetActive(false);
 		bt_eye.SetActive(false);
 		bt_eye1.SetActive(true);
