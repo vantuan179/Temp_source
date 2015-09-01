@@ -51,52 +51,52 @@ TextureImporter:
     - name: game3_0
       rect:
         serializedVersion: 2
-        x: 105
-        y: 469
-        width: 453
-        height: 82
+        x: 188
+        y: 602
+        width: 92
+        height: 90
       alignment: 0
-      pivot: {x: .5, y: .5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: game3_1
       rect:
         serializedVersion: 2
-        x: 662
-        y: 432
-        width: 82
-        height: 74
+        x: 83
+        y: 465
+        width: 453
+        height: 82
       alignment: 0
-      pivot: {x: .5, y: .5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: game3_2
       rect:
         serializedVersion: 2
-        x: 105
-        y: 350
-        width: 453
-        height: 82
+        x: 640
+        y: 428
+        width: 82
+        height: 74
       alignment: 0
-      pivot: {x: .5, y: .5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: game3_3
       rect:
         serializedVersion: 2
-        x: 126
-        y: 161
+        x: 83
+        y: 346
         width: 453
         height: 82
       alignment: 0
-      pivot: {x: .5, y: .5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: game3_4
       rect:
         serializedVersion: 2
-        x: 187
-        y: 602
-        width: 93
-        height: 91
+        x: 104
+        y: 157
+        width: 453
+        height: 82
       alignment: 0
-      pivot: {x: .5, y: .5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
   spritePackingTag: 
   userData: 
