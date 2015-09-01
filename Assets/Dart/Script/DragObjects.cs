@@ -198,7 +198,6 @@ public class DragObjects : MonoBehaviour {
 					Vector3 v = cam.transform.position + cam.transform.forward;
 					oldLookAt = GameObject.Find ("ObjectBoard").transform.position + (cam.transform.position - oldPostionCamera);
 					moveLookAt = Vector3.zero;
-					Debug.Log("1111111111111111-------------------------- ["+moveLookAt.x+","+moveLookAt.y+","+moveLookAt.z+"]");
 					oldOrthoSize = splineWalkerCam.oldOrthoSize;
 					lastReviewZoomBoard = oldOrthoSize;
 					curReviewZoomBoard = reviewCameraZoom;
@@ -325,136 +324,73 @@ public class DragObjects : MonoBehaviour {
 		}
 	}
 
+	bool InfiniteCameraCanSeePoint (Camera camera, Vector3 point) {
+		Vector3 viewportPoint = camera.WorldToViewportPoint(point);
+		return (viewportPoint.z > 0 && (new Rect(0, 0, 1, 1)).Contains (viewportPoint));
+	}
+
 	bool _mouseStateReview;
 	bool cameraDraggingReview;
-	Vector3 panOrigin, oldPos;
+	Vector3 panOrigin, oldPos, resetAddPos;
 	void updateMoveCameraReviewBoard(){
-		Vector2 mousePosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-		outerLeft = -listRadius [6];
-		outerRight = listRadius [6];
-		outerTop = listRadius [6];
-		outerBottom = -listRadius [6];
-		float left = Screen.width * 0.2f;
-		float right = Screen.width - (Screen.width * 0.2f);
+		if (Input.GetMouseButtonDown(0))
+		{
+			_mouseStateReview = true;
+			oldPos = cam.transform.position;
+			panOrigin = Camera.main.ScreenToViewportPoint(Input.mousePosition); 
+		}
+		if (Input.GetMouseButtonUp (0)) {
+			_mouseStateReview = false;
+			moveLookAt += tmpPosAdd;
+		}
 		
-		if(mousePosition.x < left)
-		{
-			cameraDraggingReview = true;
-		}
-		else if(mousePosition.x > right)
-		{
-			cameraDraggingReview = true;
-		}
-		if (cameraDraggingReview) {
-			if (Input.GetMouseButtonDown(0))
-			{
-				_mouseStateReview = true;
-				oldPos = cam.transform.position;
-				panOrigin = Camera.main.ScreenToViewportPoint(Input.mousePosition); 
+		if(_mouseStateReview) {
+			Vector3 pos1 = Camera.main.ScreenToViewportPoint(Input.mousePosition) - panOrigin;
+			Vector3 lastPos = cam.transform.position;
+			cam.transform.position = oldPos - pos1 * dragSpeed;
+			if (!InfiniteCameraCanSeePoint (cam, Vector3.zero)) {
+				cam.transform.position = lastPos;
+				return;
 			}
-			if (Input.GetMouseButtonUp (0)) {
-				_mouseStateReview = false;
-				moveLookAt += tmpPosAdd;
-				Debug.Log(++count+"----------AAAAAAAAAAAAAA---------------- ["+moveLookAt.x+","+moveLookAt.y+","+moveLookAt.z+"]");
-			}
-			
-			if(_mouseStateReview) {
-				Vector3 pos1 = Camera.main.ScreenToViewportPoint(Input.mousePosition) - panOrigin;
-				cam.transform.position = oldPos - pos1 * 5;
-				tmpPosAdd = (-pos1 * 5);
-			}
+			tmpPosAdd = (-pos1 * dragSpeed);
 		}
 	}
 	int count=0;
 	private Vector3 tmpPosAdd = Vector3.zero;
 	private Vector3 moveLookAt = Vector3.zero;
 	private float dragSpeed = 5;
-	private bool cameraDragging;
-	private float outerLeft = -4f;
-	private float outerRight = 4f;
-	private float outerTop = 3.5f;
-	private float outerBottom = -3.5f;
 	public bool isResetMoveCamera;
 	void updateCameraMoveBoard(){
 		if (isResetMoveCamera) {
 			ResetCameraMoveBoard();
 			return;
 		}
-		Vector2 mousePosition = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-		outerLeft = -listRadius [6];
-		outerRight = listRadius [6];
-		outerTop = listRadius [6];
-		outerBottom = -listRadius [6];
-		float left = Screen.width * 0.2f;
-		float right = Screen.width - (Screen.width * 0.2f);
 		
-		if(mousePosition.x < left)
+		if (Input.GetMouseButtonDown(0))
 		{
-			cameraDragging = true;
+			_mouseState = true;
+			oldPos = cam.transform.position;
+			panOrigin = Camera.main.ScreenToViewportPoint(Input.mousePosition); 
 		}
-		else if(mousePosition.x > right)
-		{
-			cameraDragging = true;
+		if (Input.GetMouseButtonUp (0)) {
+			_mouseState = false;
 		}
-		if (cameraDragging) {
-			
-			if (Input.GetMouseButtonDown(0))
-			{
-				dragOrigin = Input.mousePosition;
-				_mouseState = true;
+		
+		if(_mouseState) {
+			Vector3 pos1 = Camera.main.ScreenToViewportPoint(Input.mousePosition) - panOrigin;
+			Vector3 lastPos = cam.transform.position;
+			cam.transform.position = oldPos - pos1 * dragSpeed;
+			if (!InfiniteCameraCanSeePoint (cam, Vector3.zero)) {
+				cam.transform.position = lastPos;
 				return;
 			}
-			if (Input.GetMouseButtonUp (0)) {
-				_mouseState = false;
+			tmpPosAdd = (-pos1 * dragSpeed);
+			foreach(BezierSpline splie in splineWalkerCam.splines) {
+				splie.transform.Translate(cam.transform.localPosition - oldPos, Space.World);
 			}
+			splineWalkerCam.oldPosition = cam.transform.localPosition;	
 
-			if(_mouseState) {
-				Vector3 lastPostion = cam.transform.localPosition;
-				Vector3 pos = Camera.main.ScreenToViewportPoint(Input.mousePosition - dragOrigin);
-				Vector3 move = new Vector3(-pos.x * dragSpeed, -pos.y * dragSpeed, 0);
-				dragOrigin = Input.mousePosition;
-				if (move.x > 0f)
-				{
-					if(cam.transform.position.x < outerRight)
-					{
-						cam.transform.Translate(new Vector3(move.x, 0, 0), Space.World);
-					} else {
-						cam.transform.localPosition = new Vector3(outerRight, cam.transform.localPosition.y, cam.transform.localPosition.z);
-					}
-				}
-				else{
-					if(cam.transform.position.x > outerLeft)
-					{
-						cam.transform.Translate(new Vector3(move.x, 0, 0), Space.World);
-					} else {
-						cam.transform.localPosition = new Vector3(outerLeft, cam.transform.localPosition.y, cam.transform.localPosition.z);
-					}
-				}
-				if (move.y > 0f)
-				{
-					if(cam.transform.position.y < outerTop)
-					{
-						cam.transform.Translate(new Vector3(0, move.y, 0), Space.World);
-					} else {
-						cam.transform.localPosition = new Vector3(cam.transform.localPosition.x, outerTop, cam.transform.localPosition.z);
-					}
-				}
-				else{
-					if(cam.transform.position.y > outerBottom)
-					{
-						cam.transform.Translate(new Vector3(0, move.y, 0), Space.World);
-					} else {
-						cam.transform.localPosition = new Vector3(cam.transform.localPosition.x, outerBottom, cam.transform.localPosition.z);
-					}
-				}
-
-				foreach(BezierSpline splie in splineWalkerCam.splines) {
-					splie.transform.Translate(cam.transform.localPosition - lastPostion, Space.World);
-				}
-				splineWalkerCam.oldPosition = cam.transform.localPosition;
-
-			}
-		} 
+		}
 	}
 
 
