@@ -401,6 +401,7 @@ public class DragObjects : MonoBehaviour {
 				return;
 			}
 			tmpPosAdd = (-pos1 * dragSpeed);
+			Debug.Log(" -------------------- ["+Input.mousePosition.x+","+Input.mousePosition.y+","+Input.mousePosition.z+"]");
 			foreach(BezierSpline spline in splineWalkerCam.splines) {
 				spline.transform.position = cam.transform.position - vSpline;
 			}
@@ -494,12 +495,17 @@ public class DragObjects : MonoBehaviour {
 	void Update () {
 		if (cameraMode == CameraMode.ZoomBoard) {
 			UpdateZoomBoard ();
+			return;
 		} else if (cameraMode == CameraMode.ReviewBoard) {
-			if(!SplineWalker.reviewCamera)
+			if(!SplineWalker.reviewCamera){
 				updateCameraReviewBoard ();
+				return;
+			}
 		}
-		else if(cameraMode == CameraMode.MoveBoard)
+		else if(cameraMode == CameraMode.MoveBoard){
 			updateCameraMoveBoard ();
+			return;
+		}
 		Debug.Log ("cameraMode ------------------------------------------- " + cameraMode);
 		if (cameraMode != CameraMode.ReviewDarts || SplineWalker.isThrowingDart) {
 			_mouseState = false;
