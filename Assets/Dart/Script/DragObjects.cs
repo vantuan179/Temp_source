@@ -92,6 +92,7 @@ public class DragObjects : MonoBehaviour {
 		target.transform.localEulerAngles = oldRotationTarget;
 		target.transform.localScale = oldScaleTarget;
 		target.GetComponent <SplineWalker> ().dartOutScreen = true;
+		target.GetComponent <SplineWalker> ().isThrowEdDart = false;
 		foreach (Text text in textGetScore) {
 			text.text = "0";		
 		}
@@ -499,8 +500,11 @@ public class DragObjects : MonoBehaviour {
 		}
 		else if(cameraMode == CameraMode.MoveBoard)
 			updateCameraMoveBoard ();
-		if (cameraMode != CameraMode.ReviewDarts || !SplineWalker.normalCameraMode)
+		Debug.Log ("cameraMode ------------------------------------------- " + cameraMode);
+		if (cameraMode != CameraMode.ReviewDarts || SplineWalker.isThrowingDart) {
+			_mouseState = false;
 			return;
+		}
 		/*if (Input.mousePosition.y < 140 && (Input.mousePosition.x < 60 || Input.mousePosition.x > Screen.width - 60)) {
 			if(_mouseState) {
 				Target.SetActive(false);
@@ -515,6 +519,7 @@ public class DragObjects : MonoBehaviour {
 			}
 			Target = darts[SplineWalker.s_count];
 			splineWalker = Target.GetComponent <SplineWalker> ();
+			if(splineWalker.isThrowEdDart) return;
 			splineWalker.spline.transform.localEulerAngles = oldRotationSpline;
 			splineWalker.spline.transform.position = oldPostionnSpline;
 			Target.SetActive(true);
@@ -525,7 +530,8 @@ public class DragObjects : MonoBehaviour {
 
 		}
 		if (Input.GetMouseButtonUp (0)) {
-			if(!Target.activeSelf) return;
+			if(!Target.activeSelf || !_mouseState) return;
+			_mouseState = false;
 			float d = Vector2.Distance(Input.mousePosition, oldMouse);
 			if(d > 5 && Input.mousePosition.y > oldMouse.y) {
 				Vector2 v1 = new Vector2(0, 1);
@@ -533,11 +539,9 @@ public class DragObjects : MonoBehaviour {
 				float angle = Vector2.Angle(v1, v2);
 				splineWalker.spline.transform.Rotate(new Vector3(0, 0, 1), (Input.mousePosition.x > oldMouse.x ? -angle : angle));
 				splineWalker.spline.transform.position = Target.transform.position - tmpV;
-				_mouseState = false;
 				splineWalker.isThrowDart = true;
 			} else {
 				Target.SetActive(false);
-				_mouseState = false;
 			}
 		}
 		if (_mouseState) {

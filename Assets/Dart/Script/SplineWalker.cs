@@ -15,10 +15,11 @@ public class SplineWalker : MonoBehaviour {
 	private float progress = 0f;
 	private bool goingForward = true;
 	public bool isThrowDart = false;
+	public bool isThrowEdDart = false;
 	private float reduceScale = 0f;
 	private float reduceSizeCame = 0f;
 	private Vector3 reduceLookCame = Vector3.zero;
-	bool lookCamera = false;
+	public bool lookCamera = false;
 	Vector3 targetReview;
 	float valueScale = 0.6f;
 	float valueSizeMaxZoom = 3.8f;
@@ -38,7 +39,7 @@ public class SplineWalker : MonoBehaviour {
 	public static int s_remainScore = 501;
 	public static int s_count = 0;
 	private static DragObjects dragObject;
-	public static bool normalCameraMode = true;
+	public static bool isThrowingDart = false;
 	public static bool resetDart = true;
 	public static float[] listRadius;
 	public static Text remainScoreText;
@@ -71,8 +72,9 @@ public class SplineWalker : MonoBehaviour {
 	}
 	private void Update () {
 		if (isThrowDart || lookCamera) {
-			normalCameraMode = false;
 			if (goingForward) {
+				if(isThrowDart && progress == 0)
+					isThrowingDart = true;
 				progress += Time.deltaTime / duration;
 				if (progress > 1f) {
 					if (mode == SplineWalkerMode.Once) {
@@ -81,7 +83,8 @@ public class SplineWalker : MonoBehaviour {
 							isThrowDart = false;
 							transform.localScale = new Vector3 (valueScale, valueScale, valueScale);
 							reSetSplineWalker ();
-							normalCameraMode = true;
+							isThrowingDart = false;
+							isThrowEdDart = true;
 						} else {
 							lookCamera = false;
 							camera.orthographicSize = valueSizeMinZoom + (valueSizeMaxZoom - valueSizeMinZoom)*(dragObject.distanceMax2Target/(2*listRadius[6]));
@@ -120,7 +123,6 @@ public class SplineWalker : MonoBehaviour {
 					transform.localEulerAngles = oldRotation;
 					transform.localPosition = oldPosition;
 					resetDart = true;
-					normalCameraMode = true;
 				} else {
 					transform.localPosition = position;
 					currentLookAt = new Vector3(oldPosition.x, oldPosition.y, targetReview.z) + (new Vector3((targetReview.x - oldPosition.x) * progress, (targetReview.y - position.y) * progress, 0));
