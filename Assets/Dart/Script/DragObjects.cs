@@ -49,6 +49,10 @@ public class DragObjects : MonoBehaviour {
 			CircleCollider2D circleCollider2D = obj.GetComponent<CircleCollider2D>();
 			listRadius[i] = circleCollider2D.radius*circleCollider2D.transform.localScale.x*transform.localScale.x;
 		}
+		arrLimitPoints [0] = new Vector3 (0, listRadius [2], 0);
+		arrLimitPoints [1] = new Vector3 (0, -listRadius [2], 0);
+		arrLimitPoints [2] = new Vector3 (listRadius [2], 0, 0);
+		arrLimitPoints [3] = new Vector3 (-listRadius [2], 0, 0);
 		for (int i = 0; i < darts.Length; i++) {
 			darts[i] = Instantiate (objectDart) as GameObject;	
 		}
@@ -70,7 +74,6 @@ public class DragObjects : MonoBehaviour {
 		cam.transform.LookAt(GameObject.Find ("ObjectBoard").transform.position);
 		oldLookAt = GameObject.Find ("ObjectBoard").transform.position;
 		splineWalkerCam = objCam.GetComponent <SplineWalker> ();
-
 	}
 
 	void OnDrawGizmosSelected() {
@@ -348,29 +351,41 @@ public class DragObjects : MonoBehaviour {
 			Vector3 pos1 = Camera.main.ScreenToViewportPoint(Input.mousePosition) - panOrigin;
 			Vector3 lastPos = cam.transform.position;
 			cam.transform.position = oldPos - pos1 * dragSpeed;
-			if (!InfiniteCameraCanSeePoint (cam, Vector3.zero)) {
+			if (!checkMoveCameraReview()) {
 				cam.transform.position = lastPos;
 				return;
 			}
 			tmpPosAdd = (-pos1 * dragSpeed);
 		}
 	}
+	Vector3[] arrLimitPoints = new Vector3[4];
+	bool checkMoveCameraReview(){
+		foreach (Vector3 v in arrLimitPoints) {
+			if(InfiniteCameraCanSeePoint (cam, v))
+				return true;
+		}
+		return false;
+	}
+
+
 	int count=0;
 	private Vector3 tmpPosAdd = Vector3.zero;
 	private Vector3 moveLookAt = Vector3.zero;
 	private float dragSpeed = 5;
 	public bool isResetMoveCamera;
+	private Vector3 vSpline;
 	void updateCameraMoveBoard(){
 		if (isResetMoveCamera) {
 			ResetCameraMoveBoard();
 			return;
 		}
-		
+
 		if (Input.GetMouseButtonDown(0))
 		{
 			_mouseState = true;
 			oldPos = cam.transform.position;
 			panOrigin = Camera.main.ScreenToViewportPoint(Input.mousePosition); 
+			vSpline = oldPos - splineWalkerCam.splines[0].transform.position;
 		}
 		if (Input.GetMouseButtonUp (0)) {
 			_mouseState = false;
@@ -385,8 +400,8 @@ public class DragObjects : MonoBehaviour {
 				return;
 			}
 			tmpPosAdd = (-pos1 * dragSpeed);
-			foreach(BezierSpline splie in splineWalkerCam.splines) {
-				splie.transform.Translate(cam.transform.localPosition - oldPos, Space.World);
+			foreach(BezierSpline spline in splineWalkerCam.splines) {
+				spline.transform.position = cam.transform.position - vSpline;
 			}
 			splineWalkerCam.oldPosition = cam.transform.localPosition;	
 
